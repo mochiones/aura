@@ -130,16 +130,12 @@ export default function EntryDetailPage() {
           </Link>
 
           <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-lg text-[#9B9BAD] hover:text-destructive hover:bg-destructive/5"
-                disabled={isDeleting}
-                aria-label="Usuń"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+            <AlertDialogTrigger
+              className="h-8 w-8 rounded-lg inline-flex items-center justify-center text-[#9B9BAD] hover:text-destructive hover:bg-destructive/5 transition-colors disabled:opacity-50"
+              disabled={isDeleting}
+              aria-label="Usuń"
+            >
+              <Trash2 className="h-4 w-4" />
             </AlertDialogTrigger>
             <AlertDialogContent
               aria-labelledby="delete-dialog-title"
