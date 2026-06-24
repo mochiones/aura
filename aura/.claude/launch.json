@@ -1,0 +1,27 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev-3002",
+      "runtimeExecutable": "/Users/gregory/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "env": {
+        "PATH": "/Users/gregory/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+        "NEXT_DIST_DIR": ".next-3002"
+      },
+      "runtimeArgs": ["node_modules/next/dist/bin/next", "dev", "--port", "3002"],
+      "port": 3002,
+      "cwd": "/Users/gregory/Desktop/week-1/aura"
+    },
+    {
+      "name": "dev-3003",
+      "runtimeExecutable": "/Users/gregory/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "env": {
+        "PATH": "/Users/gregory/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+        "NEXT_DIST_DIR": ".next-3003"
+      },
+      "runtimeArgs": ["node_modules/next/dist/bin/next", "dev", "--port", "3003"],
+      "port": 3003,
+      "cwd": "/Users/gregory/Desktop/week-1/aura"
+    }
+  ]
+}

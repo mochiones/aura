@@ -52,137 +52,124 @@ export default function HomePage() {
   const hasActiveFilters = filters.mood !== null || filters.tag !== null;
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
-      {/* Nagłówek */}
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h1 className="text-2xl font-bold text-[#1A1A2E]">Twoje wpisy</h1>
-          <p className="text-sm text-[#9B9BAD] mt-0.5">
-            {entries.length === 0
-              ? "Brak wpisów"
-              : `${entries.length} ${entries.length === 1 ? "wpis" : entries.length < 5 ? "wpisy" : "wpisów"}`}
-          </p>
-        </div>
+    <>
+      {/* Desktop: ekran powitalny (lista jest w sidebarze) */}
+      <div className="hidden md:flex flex-1 items-center justify-center h-full text-center select-none px-8">
+        {entries.length === 0 && !isLoading ? (
+          <div>
+            <div className="text-5xl mb-4">📓</div>
+            <h2 className="text-xl font-bold text-[#1A1A2E] mb-2">Witaj! Jak się czujesz?</h2>
+            <p className="text-sm text-[#9B9BAD] max-w-xs leading-relaxed">
+              To jest Twój dziennik Aura, który ma na celu zebranie dla Ciebie Twoich myśli.
+            </p>
+          </div>
+        ) : (
+          <div>
+            <h2 className="text-2xl font-bold text-[#1A1A2E] mb-3">Witaj! Jak się czujesz?</h2>
+            <p className="text-sm text-[#9B9BAD] max-w-xs leading-relaxed">
+              To jest Twój dziennik Aura, który ma na celu zebranie dla Ciebie Twoich myśli.
+            </p>
+          </div>
+        )}
       </div>
 
-      {/* Pasek filtrów */}
-      {entries.length > 0 && (
-        <div className="mb-5 space-y-2">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {MOODS.map((mood) => (
-              <button
-                key={mood}
-                onClick={() =>
-                  setMoodFilter(filters.mood === mood ? null : mood as Mood)
-                }
-                aria-label={MOOD_ARIA_LABELS[mood as Mood]}
-                aria-pressed={filters.mood === mood}
-                className={`text-xl h-9 w-9 rounded-xl border transition-all ${
-                  filters.mood === mood
-                    ? "border-[#7C6FCD] bg-[#7C6FCD]/10"
-                    : "border-[#EBEBF0] bg-white hover:border-[#7C6FCD]/50"
-                }`}
-              >
-                {MOOD_EMOJI[mood as Mood]}
-              </button>
-            ))}
+      {/* Mobile: pełna lista */}
+      <div className="md:hidden">
+        <div className="max-w-2xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h1 className="text-2xl font-bold text-[#1A1A2E]">Twoje wpisy</h1>
+              <p className="text-sm text-[#9B9BAD] mt-0.5">
+                {entries.length === 0
+                  ? "Brak wpisów"
+                  : `${entries.length} ${entries.length === 1 ? "wpis" : entries.length < 5 ? "wpisy" : "wpisów"}`}
+              </p>
+            </div>
+          </div>
 
-            {allTags.length > 0 && (
-              <div className="flex gap-1.5 flex-wrap ml-1">
-                {allTags.map((tag) => (
-                  <Badge
-                    key={tag}
-                    variant={filters.tag === tag ? "default" : "outline"}
-                    className={`cursor-pointer rounded-full text-xs transition-all ${
-                      filters.tag === tag
-                        ? "bg-[#7C6FCD] text-white border-[#7C6FCD]"
-                        : "hover:border-[#7C6FCD]"
+          {entries.length > 0 && (
+            <div className="mb-5 space-y-2">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {MOODS.map((mood) => (
+                  <button
+                    key={mood}
+                    onClick={() => setMoodFilter(filters.mood === mood ? null : mood as Mood)}
+                    aria-label={MOOD_ARIA_LABELS[mood as Mood]}
+                    aria-pressed={filters.mood === mood}
+                    className={`text-xl h-9 w-9 rounded-xl border transition-all ${
+                      filters.mood === mood
+                        ? "border-[#1A1A2E] bg-[#1A1A2E]/10"
+                        : "border-[#EBEBF0] bg-white hover:border-[#1A1A2E]/50"
                     }`}
-                    onClick={() =>
-                      setTagFilter(filters.tag === tag ? null : tag)
-                    }
                   >
-                    {tag}
-                  </Badge>
+                    {MOOD_EMOJI[mood as Mood]}
+                  </button>
                 ))}
+                {allTags.length > 0 && (
+                  <div className="flex gap-1.5 flex-wrap ml-1">
+                    {allTags.map((tag) => (
+                      <Badge
+                        key={tag}
+                        variant={filters.tag === tag ? "default" : "outline"}
+                        className={`cursor-pointer rounded-full text-xs transition-all ${
+                          filters.tag === tag
+                            ? "bg-[#1A1A2E] text-white border-[#1A1A2E]"
+                            : "hover:border-[#1A1A2E]"
+                        }`}
+                        onClick={() => setTagFilter(filters.tag === tag ? null : tag)}
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+                {hasActiveFilters && (
+                  <Button variant="ghost" size="sm" onClick={clearFilters}
+                    className="rounded-full h-8 text-xs text-[#9B9BAD] hover:text-[#1A1A2E] ml-1">
+                    <X className="h-3 w-3 mr-1" />
+                    Wyczyść filtry
+                  </Button>
+                )}
               </div>
-            )}
+            </div>
+          )}
 
-            {hasActiveFilters && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearFilters}
-                className="rounded-full h-8 text-xs text-[#9B9BAD] hover:text-[#1A1A2E] ml-1"
-              >
-                <X className="h-3 w-3 mr-1" />
+          {isLoading ? (
+            <EntriesSkeleton />
+          ) : entries.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4">📓</div>
+              <h2 className="text-lg font-semibold text-[#1A1A2E] mb-2">Brak wpisów</h2>
+              <p className="text-sm text-[#9B9BAD] mb-6">Zacznij od dodania pierwszego wpisu.</p>
+              <Link href="/entries/new"
+                className={cn(buttonVariants({ variant: "default" }), "rounded-full bg-[#1A1A2E] hover:bg-[#333333] text-white px-6")}>
+                <Plus className="h-4 w-4 mr-1" />
+                Nowy wpis
+              </Link>
+            </div>
+          ) : filteredEntries.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-5xl mb-4">🔍</div>
+              <h2 className="text-lg font-semibold text-[#1A1A2E] mb-2">Brak wyników</h2>
+              <p className="text-sm text-[#9B9BAD] mb-4">Żaden wpis nie pasuje do wybranych filtrów.</p>
+              <Button variant="ghost" onClick={clearFilters} className="rounded-full border border-[#EBEBF0] text-sm">
                 Wyczyść filtry
               </Button>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredEntries.map((entry) => (
+                <EntryCard key={entry.id} entry={entry} onTagClick={(tag) => setTagFilter(tag)} />
+              ))}
+            </div>
+          )}
         </div>
-      )}
 
-      {/* Lista wpisów */}
-      {isLoading ? (
-        <EntriesSkeleton />
-      ) : entries.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="text-6xl mb-4">📓</div>
-          <h2 className="text-lg font-semibold text-[#1A1A2E] mb-2">
-            Brak wpisów
-          </h2>
-          <p className="text-sm text-[#9B9BAD] mb-6">
-            Zacznij od dodania pierwszego wpisu.
-          </p>
-          <Link
-            href="/entries/new"
-            className={cn(
-              buttonVariants({ variant: "default" }),
-              "rounded-full bg-[#7C6FCD] hover:bg-[#6B5EBC] text-white px-6"
-            )}
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            Nowy wpis
-          </Link>
-        </div>
-      ) : filteredEntries.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="text-5xl mb-4">🔍</div>
-          <h2 className="text-lg font-semibold text-[#1A1A2E] mb-2">
-            Brak wyników
-          </h2>
-          <p className="text-sm text-[#9B9BAD] mb-4">
-            Żaden wpis nie pasuje do wybranych filtrów.
-          </p>
-          <Button
-            variant="ghost"
-            onClick={clearFilters}
-            className="rounded-full border border-[#EBEBF0] text-sm"
-          >
-            Wyczyść filtry
-          </Button>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filteredEntries.map((entry) => (
-            <EntryCard
-              key={entry.id}
-              entry={entry}
-              onTagClick={(tag) => setTagFilter(tag)}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* FAB na mobile */}
-      <Link
-        href="/entries/new"
-        aria-label="Dodaj nowy wpis"
-        className="md:hidden fixed bottom-20 right-4 z-30 h-14 w-14 rounded-full bg-[#7C6FCD] hover:bg-[#6B5EBC] text-white shadow-lg flex items-center justify-center transition-colors"
-      >
-        <Plus className="h-6 w-6" />
-      </Link>
-    </div>
+        <Link href="/entries/new" aria-label="Dodaj nowy wpis"
+          className="fixed bottom-20 right-4 z-30 h-14 w-14 rounded-full bg-[#1A1A2E] hover:bg-[#333333] text-white shadow-lg flex items-center justify-center transition-colors">
+          <Plus className="h-6 w-6" />
+        </Link>
+      </div>
+    </>
   );
 }

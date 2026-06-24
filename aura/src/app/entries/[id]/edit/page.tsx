@@ -49,7 +49,7 @@ export default function EditEntryPage() {
         <p className="text-[#9B9BAD] text-lg mb-4">Wpis nie został znaleziony.</p>
         <button
           onClick={() => router.push("/")}
-          className="text-[#7C6FCD] underline text-sm"
+          className="text-[#1A1A2E] underline text-sm"
         >
           Wróć do listy wpisów
         </button>

@@ -31,16 +31,10 @@ export function EntryCard({ entry, onTagClick }: EntryCardProps) {
     <Link href={`/entries/${entry.id}`} className="block group">
       <Card className="overflow-hidden border border-[#EBEBF0] shadow-sm hover:shadow-md transition-shadow rounded-2xl bg-white">
         <div className="flex">
-          {/* Kolorowy pasek nastroju */}
-          <div
-            className="w-1.5 flex-shrink-0 rounded-l-2xl"
-            style={{ backgroundColor: moodColor }}
-            aria-hidden="true"
-          />
           <CardContent className="flex-1 px-4 py-4">
             {/* Nagłówek */}
             <div className="flex items-start justify-between gap-2 mb-1">
-              <h2 className="text-lg font-semibold text-[#1A1A2E] leading-tight group-hover:text-[#7C6FCD] transition-colors line-clamp-2">
+              <h2 className="text-lg font-semibold text-[#1A1A2E] leading-tight group-hover:text-[#1A1A2E] transition-colors line-clamp-2">
                 {entry.title}
               </h2>
               {entry.mood && (
@@ -72,7 +66,7 @@ export function EntryCard({ entry, onTagClick }: EntryCardProps) {
                   <Badge
                     key={tag}
                     variant="outline"
-                    className="rounded-full text-xs cursor-pointer hover:bg-[#7C6FCD]/10 hover:border-[#7C6FCD]"
+                    className="rounded-full text-xs cursor-pointer hover:bg-[#1A1A2E]/10 hover:border-[#1A1A2E]"
                     onClick={(e) => {
                       e.preventDefault();
                       onTagClick?.(tag);

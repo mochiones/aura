@@ -92,7 +92,7 @@ export default function EntryDetailPage() {
     return (
       <div className="max-w-2xl mx-auto px-4 py-12 text-center">
         <p className="text-[#9B9BAD] text-lg mb-4">Wpis nie został znaleziony.</p>
-        <Link href="/" className="text-[#7C6FCD] underline text-sm">
+        <Link href="/" className="text-[#1A1A2E] underline text-sm">
           Wróć do listy wpisów
         </Link>
       </div>
@@ -102,108 +102,111 @@ export default function EntryDetailPage() {
   const moodColor = entry.mood ? MOOD_COLORS[entry.mood as Mood] : null;
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
-      {/* Powrót */}
-      <Link
-        href="/"
-        className="inline-flex items-center gap-1.5 text-sm text-[#9B9BAD] hover:text-[#1A1A2E] mb-6 transition-colors"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Wszystkie wpisy
-      </Link>
-
-      {/* Data */}
-      <p className="text-sm text-[#9B9BAD] mb-3 capitalize">
-        {formatDate(entry.createdAt)}
-      </p>
-
-      {/* Nastrój chip */}
-      {entry.mood && (
-        <div
-          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium mb-4"
-          style={{
-            backgroundColor: moodColor + "30",
-            color: "#1A1A2E",
-          }}
+    <div className="flex flex-col h-full">
+      {/* Toolbar – górna belka */}
+      <div className="flex items-center justify-between px-6 py-3 border-b border-[#EBEBF0] bg-[#F7F6F3]/80 backdrop-blur-sm">
+        {/* Mobile: przycisk wróć */}
+        <Link
+          href="/"
+          className="md:hidden inline-flex items-center gap-1 text-sm text-[#9B9BAD] hover:text-[#1A1A2E] transition-colors"
         >
-          <span>{MOOD_EMOJI[entry.mood as Mood]}</span>
-          <span>{MOOD_LABELS[entry.mood as Mood]}</span>
+          <ArrowLeft className="h-4 w-4" />
+          Wpisy
+        </Link>
+        {/* Desktop: pusty element dla wyrównania */}
+        <div className="hidden md:block" />
+
+        {/* Akcje po prawej */}
+        <div className="flex items-center gap-1">
+          <Link
+            href={`/entries/${entry.id}/edit`}
+            className={cn(
+              buttonVariants({ variant: "ghost" }),
+              "h-8 w-8 p-0 rounded-lg text-[#9B9BAD] hover:text-[#1A1A2E] hover:bg-black/5"
+            )}
+            aria-label="Edytuj"
+          >
+            <Pencil className="h-4 w-4" />
+          </Link>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-lg text-[#9B9BAD] hover:text-destructive hover:bg-destructive/5"
+                disabled={isDeleting}
+                aria-label="Usuń"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent
+              aria-labelledby="delete-dialog-title"
+              aria-describedby="delete-dialog-desc"
+            >
+              <AlertDialogHeader>
+                <AlertDialogTitle id="delete-dialog-title">
+                  Usunąć ten wpis?
+                </AlertDialogTitle>
+                <AlertDialogDescription id="delete-dialog-desc">
+                  Czy na pewno chcesz usunąć ten wpis? Tej operacji nie można cofnąć.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="rounded-full">Anuluj</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  className="rounded-full bg-destructive hover:bg-destructive/90"
+                >
+                  Usuń wpis
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
-      )}
-
-      {/* Tytuł */}
-      <h1 className="text-2xl font-bold text-[#1A1A2E] mb-3 leading-tight">
-        {entry.title}
-      </h1>
-
-      {/* Tagi */}
-      {entry.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-5">
-          {entry.tags.map((tag) => (
-            <Badge key={tag} variant="outline" className="rounded-full text-xs">
-              {tag}
-            </Badge>
-          ))}
-        </div>
-      )}
-
-      {/* Treść */}
-      <div className="mb-6">
-        <TiptapEditor content={entry.content} editable={false} />
       </div>
 
-      <Separator className="mb-6" />
+      {/* Treść wpisu */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-2xl mx-auto px-8 py-8">
+          {/* Data */}
+          <p className="text-sm text-[#9B9BAD] mb-3 capitalize">
+            {formatDate(entry.createdAt)}
+          </p>
 
-      {/* Akcje */}
-      <div className="flex items-center gap-3">
-        <Link
-          href={`/entries/${entry.id}/edit`}
-          className={cn(
-            buttonVariants({ variant: "ghost" }),
-            "rounded-full border border-[#EBEBF0] hover:border-[#7C6FCD] hover:text-[#7C6FCD]"
-          )}
-        >
-          <Pencil className="h-4 w-4 mr-1.5" />
-          Edytuj
-        </Link>
-
-        <AlertDialog>
-          <AlertDialogTrigger>
-            <Button
-              variant="destructive"
-              className="rounded-full"
-              disabled={isDeleting}
+          {/* Nastrój chip */}
+          {entry.mood && (
+            <div
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium mb-4"
+              style={{ backgroundColor: moodColor + "30", color: "#1A1A2E" }}
             >
-              <Trash2 className="h-4 w-4 mr-1.5" />
-              Usuń
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent
-            aria-labelledby="delete-dialog-title"
-            aria-describedby="delete-dialog-desc"
-          >
-            <AlertDialogHeader>
-              <AlertDialogTitle id="delete-dialog-title">
-                Usunąć ten wpis?
-              </AlertDialogTitle>
-              <AlertDialogDescription id="delete-dialog-desc">
-                Czy na pewno chcesz usunąć ten wpis? Tej operacji nie można
-                cofnąć.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="rounded-full">
-                Anuluj
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDelete}
-                className="rounded-full bg-destructive hover:bg-destructive/90"
-              >
-                Usuń wpis
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+              <span>{MOOD_EMOJI[entry.mood as Mood]}</span>
+              <span>{MOOD_LABELS[entry.mood as Mood]}</span>
+            </div>
+          )}
+
+          {/* Tytuł */}
+          <h1 className="text-2xl font-bold text-[#1A1A2E] mb-4 leading-tight">
+            {entry.title}
+          </h1>
+
+          {/* Tagi */}
+          {entry.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-6">
+              {entry.tags.map((tag) => (
+                <Badge key={tag} variant="outline" className="rounded-full text-xs">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
+
+          <Separator className="mb-6" />
+
+          {/* Treść */}
+          <TiptapEditor content={entry.content} editable={false} />
+        </div>
       </div>
     </div>
   );

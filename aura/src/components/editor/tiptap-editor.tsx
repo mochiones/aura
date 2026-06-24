@@ -6,6 +6,7 @@ import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import { Toggle } from "@/components/ui/toggle";
 import { Separator } from "@/components/ui/separator";
+import { useVoiceRecorder } from "@/components/voice-recorder";
 import {
   Bold,
   Italic,
@@ -19,6 +20,11 @@ import {
   Link as LinkIcon,
   Undo,
   Redo,
+  Mic,
+  MicOff,
+  Loader2,
+  Check,
+  Square,
 } from "lucide-react";
 
 interface TiptapEditorProps {
@@ -26,12 +32,14 @@ interface TiptapEditorProps {
   onChange?: (html: string) => void;
   editable?: boolean;
   placeholder?: string;
+  onTranscribe?: (text: string) => void;
 }
 
 export function TiptapEditor({
   content,
   onChange,
   editable = true,
+  onTranscribe,
 }: TiptapEditorProps) {
   const editor = useEditor({
     extensions: [
@@ -56,6 +64,15 @@ export function TiptapEditor({
     immediatelyRender: false,
   });
 
+  const handleTranscribed = (text: string) => {
+    if (onTranscribe) {
+      onTranscribe(text);
+    }
+  };
+
+  const { state, seconds, formattedTime, error, startRecording, stopRecording } =
+    useVoiceRecorder(handleTranscribed);
+
   if (!editor) return null;
 
   if (!editable) {
@@ -70,6 +87,19 @@ export function TiptapEditor({
     const url = window.prompt("URL:");
     if (!url) return;
     editor.chain().focus().setLink({ href: url }).run();
+  };
+
+  const handleMicClick = () => {
+    if (state === "idle") startRecording();
+    else if (state === "recording") stopRecording();
+  };
+
+  const micButtonClass = () => {
+    const base = "h-7 w-7 rounded-md flex items-center justify-center transition-colors cursor-pointer";
+    if (state === "recording") return `${base} bg-red-100 text-red-500 animate-pulse`;
+    if (state === "processing") return `${base} bg-amber-50 text-amber-600`;
+    if (state === "done") return `${base} bg-green-100 text-green-700`;
+    return `${base} bg-indigo-50 text-[#1A1A2E] hover:bg-indigo-100`;
   };
 
   return (
@@ -200,9 +230,127 @@ export function TiptapEditor({
         >
           <Redo className="h-4 w-4" />
         </Toggle>
+
+        <Separator orientation="vertical" className="h-5 mx-1" />
+
+        {/* Przycisk mikrofonu */}
+        <button
+          type="button"
+          onClick={handleMicClick}
+          disabled={state === "processing"}
+          className={micButtonClass()}
+          aria-label={
+            state === "idle"
+              ? "Nagraj głosowo"
+              : state === "recording"
+              ? "Zatrzymaj nagrywanie"
+              : state === "processing"
+              ? "Transkrybuję…"
+              : "Tekst wstawiony"
+          }
+        >
+          {state === "idle" && <Mic className="h-4 w-4" />}
+          {state === "recording" && <MicOff className="h-4 w-4" />}
+          {state === "processing" && (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          )}
+          {state === "done" && <Check className="h-4 w-4" />}
+        </button>
+
+        {/* Badge stanu (desktop) */}
+        {state !== "idle" && (
+          <span
+            className={`hidden md:inline-flex items-center gap-1.5 ml-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+              state === "recording"
+                ? "bg-red-100 text-red-700"
+                : state === "processing"
+                ? "bg-amber-50 text-amber-700"
+                : "bg-green-100 text-green-700"
+            }`}
+          >
+            {state === "recording" && (
+              <>
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                {formattedTime}
+              </>
+            )}
+            {state === "processing" && "Transkrybuję…"}
+            {state === "done" && "Tekst wstawiony"}
+          </span>
+        )}
       </div>
 
       <EditorContent editor={editor} />
+
+      {/* Error */}
+      {error && (
+        <p className="px-4 py-2 text-sm text-destructive border-t border-[#EBEBF0]">
+          {error}
+        </p>
+      )}
+
+      {/* Bottom sheet — mobile, tylko podczas nagrywania lub przetwarzania */}
+      {(state === "recording" || state === "processing") && (
+        <div className="fixed inset-0 z-50 md:hidden flex flex-col justify-end">
+          <div
+            className="absolute inset-0 bg-black/20"
+            onClick={state === "recording" ? stopRecording : undefined}
+          />
+          <div className="relative bg-white rounded-t-2xl border-t border-[#EBEBF0] px-5 pt-5 pb-8 safe-area-pb">
+            <div className="w-9 h-1 rounded-full bg-[#EBEBF0] mx-auto mb-5" />
+
+            {state === "recording" && (
+              <>
+                <div
+                  className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-3 animate-pulse"
+                  aria-hidden="true"
+                >
+                  <Mic className="h-7 w-7 text-red-500" />
+                </div>
+                <p className="text-3xl font-medium text-[#1A1A2E] text-center mb-1 tabular-nums">
+                  {formattedTime}
+                </p>
+                <p className="text-sm text-[#9B9BAD] text-center mb-5">
+                  Nagrywanie — mów teraz…
+                </p>
+                <button
+                  type="button"
+                  onClick={stopRecording}
+                  className="w-full h-12 rounded-full bg-[#1A1A2E] text-white font-medium text-base flex items-center justify-center gap-2"
+                >
+                  <Square className="h-4 w-4 fill-white" />
+                  Zatrzymaj i transkrybuj
+                </button>
+              </>
+            )}
+
+            {state === "processing" && (
+              <>
+                <div className="w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-3">
+                  <Loader2 className="h-7 w-7 text-amber-600 animate-spin" />
+                </div>
+                <p className="text-base font-medium text-[#1A1A2E] text-center mb-1">
+                  Transkrybuję nagranie…
+                </p>
+                <p className="text-sm text-[#9B9BAD] text-center">
+                  To zajmuje kilka sekund
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Timer — mobile, mały badge w toolbarze gdy nagrywamy */}
+      {state === "recording" && (
+        <div className="md:hidden flex items-center gap-1.5 px-3 py-1.5 border-t border-[#EBEBF0] bg-red-50">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+          <span className="text-xs font-medium text-red-700 tabular-nums">
+            {formattedTime}
+          </span>
+          <span className="text-xs text-red-500 ml-auto">Nagrywanie…</span>
+        </div>
+      )}
     </div>
   );
 }

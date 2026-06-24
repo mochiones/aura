@@ -26,7 +26,7 @@ export function MoodPicker({ value, onChange }: MoodPickerProps) {
           key={mood}
           value={mood.toString()}
           aria-label={MOOD_ARIA_LABELS[mood]}
-          className="text-2xl h-12 w-12 rounded-xl border border-[#EBEBF0] data-[state=on]:border-[#7C6FCD] transition-all"
+          className="text-2xl h-12 w-12 rounded-xl border border-[#EBEBF0] data-[state=on]:border-[#1A1A2E] transition-all"
           style={
             value === mood
               ? { backgroundColor: MOOD_COLORS[mood] + "40", borderColor: MOOD_COLORS[mood] }

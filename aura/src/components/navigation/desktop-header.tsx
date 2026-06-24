@@ -20,7 +20,7 @@ export function DesktopHeader() {
           href="/entries/new"
           className={cn(
             buttonVariants({ variant: "default" }),
-            "rounded-full bg-[#7C6FCD] hover:bg-[#6B5EBC] text-white px-5"
+            "rounded-full bg-[#1A1A2E] hover:bg-[#333333] text-white px-5"
           )}
         >
           <Plus className="h-4 w-4 mr-1" />

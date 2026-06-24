@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,17 +80,37 @@ export function EntryForm({ entry }: EntryFormProps) {
     <div className="max-w-2xl mx-auto px-4 py-6">
       {/* Nagłówek */}
       {!isEditing && (
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-[#1A1A2E]">
-            Jak się dziś czujesz?
-          </h1>
-          <p className="text-sm text-[#9B9BAD] mt-1 capitalize">
-            {formatTodayDate()}
-          </p>
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-[#1A1A2E]">
+              Jak się dziś czujesz?
+            </h1>
+            <p className="text-sm text-[#9B9BAD] mt-1 capitalize">
+              {formatTodayDate()}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => router.push("/")}
+            className="text-[#9B9BAD] hover:text-[#1A1A2E] transition-colors p-1 -mr-1"
+            aria-label="Anuluj i wróć do listy"
+          >
+            <X size={24} />
+          </button>
         </div>
       )}
       {isEditing && (
-        <h1 className="text-2xl font-bold text-[#1A1A2E] mb-6">Edytuj wpis</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-[#1A1A2E]">Edytuj wpis</h1>
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="text-[#9B9BAD] hover:text-[#1A1A2E] transition-colors p-1 -mr-1"
+            aria-label="Anuluj edycję"
+          >
+            <X size={24} />
+          </button>
+        </div>
       )}
 
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
@@ -135,6 +156,14 @@ export function EntryForm({ entry }: EntryFormProps) {
               setContent(html);
               if (errors.content) setErrors((prev) => ({ ...prev, content: undefined }));
             }}
+            onTranscribe={(text) => {
+              setContent((prev) => {
+                const isEmpty = !prev || prev === "<p></p>";
+                const appended = isEmpty ? `<p>${text}</p>` : `${prev}<p>${text}</p>`;
+                if (errors.content) setErrors((e) => ({ ...e, content: undefined }));
+                return appended;
+              });
+            }}
             editable
           />
           {errors.content && (
@@ -154,7 +183,7 @@ export function EntryForm({ entry }: EntryFormProps) {
         <Button
           type="submit"
           disabled={isSaving}
-          className="w-full rounded-full bg-[#7C6FCD] hover:bg-[#6B5EBC] text-white h-12 text-base font-medium mt-2"
+          className="w-full rounded-full bg-[#1A1A2E] hover:bg-[#333333] text-white h-12 text-base font-medium mt-2"
         >
           {isSaving ? "Zapisywanie…" : isEditing ? "Zapisz zmiany" : "Zapisz wpis"}
         </Button>

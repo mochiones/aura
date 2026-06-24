@@ -31,7 +31,7 @@ export function MobileNav() {
             className={cn(
               "flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-colors min-w-[60px]",
               isActive
-                ? "text-[#7C6FCD]"
+                ? "text-[#1A1A2E]"
                 : "text-[#9B9BAD] hover:text-[#1A1A2E]",
               disabled && "opacity-40 pointer-events-none"
             )}
