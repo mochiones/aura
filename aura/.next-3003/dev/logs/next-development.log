@@ -1,8 +1,0 @@
-{"timestamp":"00:00:00.256","source":"Server","level":"LOG","message":""}
-{"timestamp":"00:00:00.256","source":"Server","level":"LOG","message":"  We detected TypeScript in your project and reconfigured your tsconfig.json file for you."}
-{"timestamp":"00:00:00.256","source":"Server","level":"LOG","message":"  The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:\n"}
-{"timestamp":"00:00:00.256","source":"Server","level":"LOG","message":"  \t- include was updated to add '.next-3003/types/**/*.ts'"}
-{"timestamp":"00:00:00.256","source":"Server","level":"LOG","message":"  \t- include was updated to add '.next-3003/dev/types/**/*.ts'"}
-{"timestamp":"00:00:00.256","source":"Server","level":"LOG","message":""}
-{"timestamp":"00:00:00.304","source":"Server","level":"LOG","message":""}
-{"timestamp":"01:10:34.600","source":"Server","level":"LOG","message":"  Reload env: .env.local"}

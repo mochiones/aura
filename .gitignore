@@ -1,0 +1,7 @@
+.DS_Store
+.claude/
+aura/.next-3003/
+aura/.next-3002/
+aura/proxy-3001.mjs
+aura/.claude/start-dev*.sh
+aura/.claude/start-dev.sh
