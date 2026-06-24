@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd aura && npm run build",
+  "installCommand": "cd aura && npm install",
+  "outputDirectory": "aura/.next",
+  "framework": "nextjs"
+}
