@@ -65,9 +65,15 @@ export function TiptapEditor({
   });
 
   const handleTranscribed = (text: string) => {
-    if (onTranscribe) {
-      onTranscribe(text);
+    if (editor) {
+      const isEmpty = editor.isEmpty;
+      editor
+        .chain()
+        .focus()
+        .insertContent(isEmpty ? `<p>${text}</p>` : `<p>${text}</p>`)
+        .run();
     }
+    onTranscribe?.(text);
   };
 
   const { state, seconds, formattedTime, error, startRecording, stopRecording } =
