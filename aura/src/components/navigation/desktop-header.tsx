@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function DesktopHeader() {
@@ -15,18 +15,33 @@ export function DesktopHeader() {
       <Link href="/" className="text-2xl font-bold text-[#1A1A2E] tracking-tight">
         Aura
       </Link>
-      {!isNewEntry && (
-        <Link
-          href="/entries/new"
-          className={cn(
-            buttonVariants({ variant: "default" }),
-            "rounded-full bg-[#1A1A2E] hover:bg-[#333333] text-white px-5"
-          )}
-        >
-          <Plus className="h-4 w-4 mr-1" />
-          Nowy wpis
-        </Link>
-      )}
+      <div className="flex items-center gap-2">
+        {!isNewEntry && (
+          <Link
+            href="/entries/new"
+            className={cn(
+              buttonVariants({ variant: "default" }),
+              "rounded-full bg-[#1A1A2E] hover:bg-[#333333] text-white px-5"
+            )}
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Nowy wpis
+          </Link>
+        )}
+        <form action="/auth/signout" method="post">
+          <button
+            type="submit"
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon" }),
+              "rounded-full text-[#1A1A2E]"
+            )}
+            title="Wyloguj się"
+            aria-label="Wyloguj się"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </form>
+      </div>
     </header>
   );
 }

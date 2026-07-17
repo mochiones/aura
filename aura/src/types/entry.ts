@@ -11,4 +11,7 @@ export interface Entry {
   userId: string | null; // null in Phase 1
 }
 
-export type NewEntry = Omit<Entry, "id" | "createdAt" | "updatedAt" | "userId">;
+export type NewEntry = Omit<Entry, "id" | "createdAt" | "updatedAt" | "userId"> & {
+  // Opcjonalna data utworzenia (ISO) — pozwala zapisać wpis do przeszłego dnia.
+  createdAt?: string;
+};

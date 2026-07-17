@@ -54,7 +54,7 @@ class JsonEntryRepository implements EntryRepository {
     const entry: Entry = {
       id: uuidv4(),
       ...data,
-      createdAt: now,
+      createdAt: data.createdAt ?? now,
       updatedAt: now,
       userId: null,
     };

@@ -1,21 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
-import { entryRepository } from "@/lib/repository/json-entry-repository";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseEntryRepository } from "@/lib/repository/supabase-entry-repository";
 import type { NewEntry } from "@/types/entry";
 
+// Buduje repozytorium powiązane z zalogowanym użytkownikiem albo zwraca null (401).
+async function getRepo() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+  return createSupabaseEntryRepository(supabase, user.id);
+}
+
 export async function GET() {
+  const repo = await getRepo();
+  if (!repo) {
+    return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
+  }
   try {
-    const entries = await entryRepository.getAll();
+    const entries = await repo.getAll();
     return NextResponse.json(entries);
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "UNKNOWN";
-    if (message === "DATA_CORRUPTED") {
-      return NextResponse.json({ error: "DATA_CORRUPTED" }, { status: 500 });
-    }
+  } catch {
     return NextResponse.json({ error: "Failed to load entries" }, { status: 500 });
   }
 }
 
 export async function POST(req: NextRequest) {
+  const repo = await getRepo();
+  if (!repo) {
+    return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
+  }
   try {
     const body = (await req.json()) as Partial<NewEntry>;
 
@@ -26,11 +41,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const entry = await entryRepository.create({
+    let createdAt: string | undefined;
+    if (body.createdAt !== undefined) {
+      const parsed = Date.parse(body.createdAt);
+      if (Number.isNaN(parsed) || parsed > Date.now()) {
+        return NextResponse.json(
+          { error: "createdAt must be a valid past date" },
+          { status: 400 }
+        );
+      }
+      createdAt = new Date(parsed).toISOString();
+    }
+
+    const entry = await repo.create({
       title: body.title.trim(),
       content: body.content,
       tags: body.tags ?? [],
       mood: body.mood ?? null,
+      createdAt,
     });
 
     return NextResponse.json(entry, { status: 201 });

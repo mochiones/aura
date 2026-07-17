@@ -21,12 +21,29 @@ export async function POST(req: NextRequest) {
 
   const file = new File([audio], "recording.webm", { type: audio.type });
 
-  const transcription = await groq.audio.transcriptions.create({
-    file,
-    model: "whisper-large-v3-turbo",
-    language: "pl",
-    response_format: "json",
-  });
+  try {
+    const transcription = await groq.audio.transcriptions.create({
+      file,
+      model: "whisper-large-v3-turbo",
+      language: "pl",
+      response_format: "json",
+    });
 
-  return NextResponse.json({ text: transcription.text });
+    return NextResponse.json({ text: transcription.text });
+  } catch (err: unknown) {
+    // Bez tego bloku nieobsłużony wyjątek daje pustą odpowiedź 500
+    // i „Unexpected end of JSON input" po stronie klienta.
+    const status =
+      typeof err === "object" && err !== null && "status" in err
+        ? (err as { status?: number }).status ?? 500
+        : 500;
+    const message = err instanceof Error ? err.message : "Nieznany błąd";
+    console.error("[Aura] Transkrypcja nie powiodła się:", message);
+
+    const userMessage =
+      status === 401
+        ? "Klucz GROQ_API_KEY jest nieprawidłowy lub wygasł."
+        : "Nie udało się przetworzyć nagrania. Spróbuj ponownie.";
+    return NextResponse.json({ error: userMessage }, { status });
+  }
 }
