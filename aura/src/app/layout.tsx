@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
-import { EntriesProvider } from "@/context/entries-context";
-import { DesktopHeader } from "@/components/navigation/desktop-header";
-import { MobileNav } from "@/components/navigation/mobile-nav";
-import { EntriesSidebar } from "@/components/entries-sidebar";
 import { Toaster } from "@/components/ui/sonner";
 
 const roboto = Roboto({
@@ -25,22 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pl" className={`${roboto.variable} antialiased`}>
-      <body className="h-dvh flex flex-col bg-[#F7F6F3] text-[#1A1A2E]">
-        <EntriesProvider>
-          <DesktopHeader />
-
-          {/* Desktop: two-column layout, niezależne scrollowanie paneli */}
-          <div className="hidden md:flex flex-1 overflow-hidden">
-            <EntriesSidebar />
-            <main className="flex-1 overflow-y-auto">{children}</main>
-          </div>
-
-          {/* Mobile: single column, naturalne scrollowanie */}
-          <main className="md:hidden flex-1 overflow-y-auto pb-20">{children}</main>
-
-          <MobileNav />
-          <Toaster position="bottom-center" richColors />
-        </EntriesProvider>
+      <body className="min-h-dvh bg-[#F7F6F3] text-[#1A1A2E]">
+        {children}
+        <Toaster position="bottom-center" richColors />
       </body>
     </html>
   );
