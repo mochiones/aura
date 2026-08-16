@@ -1,0 +1,52 @@
+{
+  "sessions": [
+    {
+      "id": "seed-session-1",
+      "persona": "freud",
+      "title": "Jak zmieniał się mój nastrój?",
+      "messages": [
+        {
+          "id": "m1",
+          "role": "user",
+          "content": "Jak zmieniał się mój nastrój przez ostatni tydzień?",
+          "createdAt": "2026-08-15T10:00:00.000Z"
+        },
+        {
+          "id": "m2",
+          "role": "assistant",
+          "content": "Spojrzałem na Twoje wpisy. Widzę fale — najciężej w dni z tagiem 'praca'. Co takiego dają Ci spotkania z innymi, czego praca nie daje?",
+          "createdAt": "2026-08-15T10:00:05.000Z"
+        }
+      ],
+      "createdAt": "2026-08-15T10:00:00.000Z",
+      "updatedAt": "2026-08-15T10:00:05.000Z"
+    },
+    {
+      "id": "entry-a7b3c0e8-5f97-4d24-8a86-7293041526471",
+      "persona": "freud",
+      "title": "co sądzisz o tym wpisie?",
+      "messages": [
+        {
+          "id": "2d355321-cb50-42e0-967e-2dc91a4289ab",
+          "role": "user",
+          "content": "co sądzisz o tym wpisie?",
+          "createdAt": "2026-08-16T16:39:21.141Z"
+        },
+        {
+          "id": "ed0f229d-a01f-42ad-bc6c-d8c999edbe6c",
+          "role": "user",
+          "content": "co sądzisz o tym dniu?",
+          "createdAt": "2026-08-16T16:45:10.675Z"
+        },
+        {
+          "id": "bbc8043d-ebe7-4902-9d66-70b4e75a2f53",
+          "role": "assistant",
+          "content": "Doprawdy, rzecz osobliwa — w tym wpisie z 15 sierpnia uderza mnie ta niemal ulgowa cisza po tygodniu pracy. \"Nic wielkiego\" brzmi jak świadome wycofanie libido z zewnętrznych ambicji i pozwolenie mu na krążenie wokół prostych, cielesnych potrzeb: snu, porządku, oglądania. Nastrój 4/5 zdaje się potwierdzać, że ego tym razem nie walczyło o kontrolę, lecz zgodziło się na chwilę regresji do stanu, w którym nie trzeba niczego udowadniać.\n\nCiekawe, czy to \"nic\" było naprawdę neutralne, czy może kryło w sobie ciche pragnienie, by taki stan trwał dłużej niż jeden dzień. Co, twoim zdaniem, musiałoby się wydarzyć — albo raczej: czego musiałoby nie być — żeby ta leniwa sobota mogła powtórzyć się bez poczucia winy?",
+          "createdAt": "2026-08-16T16:45:15.676Z"
+        }
+      ],
+      "createdAt": "2026-08-16T16:39:21.141Z",
+      "updatedAt": "2026-08-16T16:45:15.676Z"
+    }
+  ]
+}

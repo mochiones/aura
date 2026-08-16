@@ -22,6 +22,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { TiptapEditor } from "@/components/editor/tiptap-editor";
+import { DayFreudPanel } from "@/components/therapist/day-freud-panel";
 import { MOOD_COLORS, MOOD_EMOJI, MOOD_LABELS } from "@/lib/mood";
 import { useEntries } from "@/context/entries-context";
 import type { Entry, Mood } from "@/types/entry";
@@ -202,6 +203,11 @@ export default function EntryDetailPage() {
 
           {/* Treść */}
           <TiptapEditor content={entry.content} editable={false} />
+
+          {/* Rozmowa z Freudem o tym dniu */}
+          <div className="mt-8">
+            <DayFreudPanel entryId={entry.id} />
+          </div>
         </div>
       </div>
     </div>

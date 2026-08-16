@@ -32,6 +32,95 @@
       "createdAt": "2026-06-24T21:36:51.881Z",
       "updatedAt": "2026-06-24T21:37:44.715Z",
       "userId": null
+    },
+    {
+      "id": "a1b7c4e2-9f31-4d68-8a20-1c3d5e6f7081",
+      "title": "Spokojna niedziela",
+      "content": "<p>Cały dzień w domu, bez pośpiechu. Zrobiłem sobie długie śniadanie i przeczytałem kawał książki.</p><p>Po południu spacer w parku — pogoda dopisała. Ładny, resetujący dzień.</p>",
+      "tags": [
+        "odpoczynek",
+        "relaks"
+      ],
+      "mood": 5,
+      "createdAt": "2026-08-09T09:15:12.000Z",
+      "updatedAt": "2026-08-09T09:15:12.000Z",
+      "userId": null
+    },
+    {
+      "id": "b2c8d5f3-0a42-4e79-9b31-2d4e6f708192",
+      "title": "Poniedziałkowy rozruch",
+      "content": "<p>Ciężko było wstać, poniedziałek dał się we znaki. Rano zaległości z weekendu i pełna skrzynka maili.</p><p>Ale udało mi się domknąć jeden większy temat w pracy, więc mimo zmęczenia jest satysfakcja.</p>",
+      "tags": [
+        "praca"
+      ],
+      "mood": 3,
+      "createdAt": "2026-08-10T18:40:33.000Z",
+      "updatedAt": "2026-08-10T18:40:33.000Z",
+      "userId": null
+    },
+    {
+      "id": "c3d9e6a4-1b53-4f80-8c42-3e5f70819203",
+      "title": "Trening po dłuższej przerwie",
+      "content": "<p>Wróciłem na siłownię po prawie dwóch tygodniach przerwy. Ciało odczuło, ale głowa mocno odpoczęła.</p><p>Wieczorem dużo energii, aż mi się chciało coś zaplanować na kolejne dni.</p>",
+      "tags": [
+        "zdrowie",
+        "sport"
+      ],
+      "mood": 4,
+      "createdAt": "2026-08-11T19:05:47.000Z",
+      "updatedAt": "2026-08-11T19:05:47.000Z",
+      "userId": null
+    },
+    {
+      "id": "d4e0f7b5-2c64-4a91-9d53-4f6081920314",
+      "title": "Trudna rozmowa",
+      "content": "<p>Dziś nieprzyjemna rozmowa z bliską osobą. Sporo napięcia i niedopowiedzeń.</p><p>Czuję się przytłoczony i trochę smutny. Muszę do tego wrócić na spokojnie, jak opadną emocje.</p>",
+      "tags": [
+        "relacje",
+        "emocje"
+      ],
+      "mood": 2,
+      "createdAt": "2026-08-12T21:30:10.000Z",
+      "updatedAt": "2026-08-12T21:30:10.000Z",
+      "userId": null
+    },
+    {
+      "id": "e5f1a8c6-3d75-4b02-8e64-5071829304250",
+      "title": "Powoli lepiej",
+      "content": "<p>Po wczorajszym dniu głowa nadal ciężka, ale rano wyszedłem na kawę i trochę mi ulżyło.</p><p>Napisałem wiadomość, żeby wyjaśnić nieporozumienie. Samo to, że zrobiłem pierwszy krok, dodało mi spokoju.</p>",
+      "tags": [
+        "emocje",
+        "relacje"
+      ],
+      "mood": 3,
+      "createdAt": "2026-08-13T11:20:05.000Z",
+      "updatedAt": "2026-08-13T11:20:05.000Z",
+      "userId": null
+    },
+    {
+      "id": "f6a2b9d7-4e86-4c13-9f75-6182930415360",
+      "title": "Produktywny piątek",
+      "content": "<p>Świetny dzień w pracy — dużo zrobione, zero chaosu. Wieczorem spotkanie ze znajomymi, których dawno nie widziałem.</p><p>Śmiech, dobre jedzenie, luźne rozmowy. Idealne zakończenie tygodnia.</p>",
+      "tags": [
+        "praca",
+        "relacje"
+      ],
+      "mood": 5,
+      "createdAt": "2026-08-14T22:10:41.000Z",
+      "updatedAt": "2026-08-14T22:10:41.000Z",
+      "userId": null
+    },
+    {
+      "id": "a7b3c0e8-5f97-4d24-8a86-7293041526471",
+      "title": "Leniwa sobota",
+      "content": "<p>Odsypianie tygodnia. Dzień bez planu, trochę seriali, trochę porządków w domu.</p><p>Nie wydarzyło się nic wielkiego i to było dokładnie to, czego potrzebowałem.</p>",
+      "tags": [
+        "odpoczynek"
+      ],
+      "mood": 4,
+      "createdAt": "2026-08-15T15:45:18.000Z",
+      "updatedAt": "2026-08-15T15:45:18.000Z",
+      "userId": null
     }
   ]
 }
