@@ -47,6 +47,27 @@
       ],
       "createdAt": "2026-08-16T16:39:21.141Z",
       "updatedAt": "2026-08-16T16:45:15.676Z"
+    },
+    {
+      "id": "entry-b2c8d5f3-0a42-4e79-9b31-2d4e6f708192",
+      "persona": "freud",
+      "title": "co myślisz",
+      "messages": [
+        {
+          "id": "a50eec85-8df3-4e50-86ba-69c9d22865f5",
+          "role": "user",
+          "content": "co myślisz",
+          "createdAt": "2026-08-16T17:12:45.950Z"
+        },
+        {
+          "id": "080f8c2a-559d-4252-a39d-1e6fa3e04adf",
+          "role": "assistant",
+          "content": "Doprawdy, rzecz osobliwa — ten poniedziałkowy rozruch zdaje się być małą sceną, na której rozgrywa się twój wewnętrzny konflikt między obowiązkiem a pragnieniem ulgi. Wstajesz z poczuciem ciężaru zaległości, a jednak kończysz dzień drobnym triumfem — domkniętym tematem. Ta satysfakcja jest jak krótki błysk libido, które jednak szybko gasi zmęczenie. Zastanawiam się, czy owo „mimo zmęczenia” nie kryje w sobie cichego pytania: ile jeszcze możesz dawać, zanim satysfakcja przestanie wystarczać za paliwo?\n\nCo, twoim zdaniem, musiałoby się wydarzyć, żeby poniedziałkowy rozruch nie był już walką, lecz naturalnym ruchem?",
+          "createdAt": "2026-08-16T17:12:50.599Z"
+        }
+      ],
+      "createdAt": "2026-08-16T17:12:45.950Z",
+      "updatedAt": "2026-08-16T17:12:50.599Z"
     }
   ]
 }

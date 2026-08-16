@@ -121,6 +121,19 @@
       "createdAt": "2026-08-15T15:45:18.000Z",
       "updatedAt": "2026-08-15T15:45:18.000Z",
       "userId": null
+    },
+    {
+      "id": "d4d55d2d-540d-41d0-b252-4e9f2d91da6e",
+      "title": "Leniwy start i rodzinny dzień",
+      "content": "<p>Wstałem dziś później niż zwykle, po dziesiątej — dzień zaczął się bardzo leniuchowo.</p><p>Potem szybko wziąłem się za obowiązki: zmywarka, pralka, sprzątanie kuchni. Zrobiłem naleśniki dla dzieci, a dla siebie i partnerki jajecznicę.</p><p>Po śniadaniu poszliśmy razem na spacer po mieście, zjedliśmy obiad, a późne popołudnie spędziłem już na nauce Claude Code.</p>",
+      "tags": [
+        "odpoczynek",
+        "relacje"
+      ],
+      "mood": 4,
+      "createdAt": "2026-08-16T17:48:42.499Z",
+      "updatedAt": "2026-08-16T17:48:42.499Z",
+      "userId": null
     }
   ]
 }
