@@ -14,7 +14,7 @@ type Params = { params: Promise<{ date: string }> };
  * Skopiowane po użytkowniku z tokenu (401 zły token, 400 zła data).
  */
 export async function GET(req: NextRequest, { params }: Params) {
-  const auth = authenticate(req);
+  const auth = await authenticate(req);
   if (auth.mode === "invalid") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

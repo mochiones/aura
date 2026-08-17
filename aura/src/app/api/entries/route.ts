@@ -5,7 +5,7 @@ import { createEntry, type CreateEntryInput } from "@/lib/entries/service";
 import { ValidationError } from "@/lib/errors";
 
 export async function GET(req: NextRequest) {
-  const auth = authenticate(req);
+  const auth = await authenticate(req);
   if (auth.mode === "invalid") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = authenticate(req);
+  const auth = await authenticate(req);
   if (auth.mode === "invalid") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Card, Code, Method, Mono, Td, Th } from "@/components/docs/ui";
+import { TokenManager } from "@/components/docs/token-manager";
 
 export const metadata = {
   title: "Dokumentacja API — Aura",
@@ -33,8 +34,11 @@ export default function DocsApiPage() {
       </div>
 
       <div className="space-y-6">
+        {/* Panel generowania tokenów */}
+        <TokenManager />
+
         {/* Autoryzacja */}
-        <Card>
+        <Card id="auth">
           <h2 className="text-lg font-bold text-[#1A1A2E]">Autoryzacja</h2>
           <p className="mt-2 text-[14px] text-[#5A5A6E]">
             Każdy endpoint identyfikuje użytkownika po nagłówku:
@@ -43,8 +47,9 @@ export default function DocsApiPage() {
             <Code>{`Authorization: Bearer <token>`}</Code>
           </div>
           <p className="mt-3 text-[14px] text-[#5A5A6E]">
-            Token jest mapowany na <Mono>userId</Mono> przez zmienną środowiskową{" "}
-            <Mono>AURA_API_TOKENS</Mono> (JSON <Mono>token → userId</Mono>, w{" "}
+            Token wygenerujesz w panelu <strong>„Twój token dostępu"</strong> powyżej
+            (przechowujemy tylko jego hash — pełny token widać raz). Działają też tokeny
+            z env <Mono>AURA_API_TOKENS</Mono> (JSON <Mono>token → userId</Mono>, w{" "}
             <Mono>.env.local</Mono>, poza repo).
           </p>
           <div className="mt-4 overflow-x-auto">

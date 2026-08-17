@@ -21,6 +21,7 @@ const NAV: NavSection[] = [
     label: "API",
     href: "/docs",
     children: [
+      { label: "Token", id: "token" },
       { label: "Dodawanie", id: "create" },
       { label: "Zapytanie", id: "ask" },
       { label: "Odczyt", id: "read" },

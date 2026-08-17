@@ -127,7 +127,7 @@ function buildServer(userId: string | null): McpServer {
  * nowy serwer + transport na każde żądanie, odpowiedzi jako JSON (enableJsonResponse).
  */
 async function handle(req: Request): Promise<Response> {
-  const auth = authenticate(req);
+  const auth = await authenticate(req);
   if (auth.mode === "invalid") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

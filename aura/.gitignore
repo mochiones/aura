@@ -33,6 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# runtime'owy magazyn tokenów API (hashe) — tworzony automatycznie, per-maszyna
+/data/tokens.json
+
 # vercel
 .vercel
 

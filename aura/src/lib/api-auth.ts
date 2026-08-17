@@ -2,10 +2,11 @@
  * Autoryzacja tokenem dla endpointów sterujących (API kontrolne).
  *
  * Faza 1 nie ma jeszcze bazy użytkowników ani better-auth w kodzie (patrz
- * pamięć projektu). Do czasu Fazy 2 tożsamość ustalamy przez STATYCZNĄ MAPĘ
- * token → userId, trzymaną w zmiennej środowiskowej `AURA_API_TOKENS`
- * (JSON, np. {"sekretny-token":"user-123"}). Nigdy nie commitujemy tokenów —
- * są w `.env.local`.
+ * pamięć projektu). Tożsamość ustalamy dwutorowo:
+ *   1) STATYCZNA MAPA token → userId z env `AURA_API_TOKENS` (JSON; wstecz),
+ *   2) tokeny wygenerowane w panelu /docs — hash w `data/tokens.json`
+ *      (TokenRepository).
+ * Nigdy nie commitujemy jawnych tokenów (env w `.env.local`, w magazynie tylko hash).
  *
  * Model użycia w trasach:
  *   - Nagłówek `Authorization: Bearer <token>` obecny i poprawny → tryb "user"
@@ -14,6 +15,8 @@
  *   - Brak nagłówka → tryb "local" (userId = null). Pozwala lokalnemu web UI
  *     działać bez tokenu na współdzielonych wpisach (userId === null).
  */
+
+import { tokenRepository } from "@/lib/repository/json-token-repository";
 
 export type AuthContext =
   | { mode: "user"; userId: string }
@@ -38,7 +41,7 @@ function loadTokenMap(): Record<string, string> {
 }
 
 /** Ustala tożsamość na podstawie nagłówka Authorization: Bearer <token>. */
-export function authenticate(req: Request): AuthContext {
+export async function authenticate(req: Request): Promise<AuthContext> {
   const header = req.headers.get("authorization");
   if (!header) return { mode: "local", userId: null };
 
@@ -46,7 +49,8 @@ export function authenticate(req: Request): AuthContext {
   const token = match?.[1]?.trim();
   if (!token) return { mode: "invalid", userId: null };
 
-  const userId = loadTokenMap()[token];
+  // 1) mapa env (wstecz), 2) tokeny wygenerowane w panelu (hash w magazynie).
+  const userId = loadTokenMap()[token] ?? (await tokenRepository.findUserId(token));
   if (!userId) return { mode: "invalid", userId: null };
 
   return { mode: "user", userId };

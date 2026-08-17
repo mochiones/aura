@@ -13,7 +13,7 @@ interface AskBody {
 }
 
 export async function POST(req: Request) {
-  const auth = authenticate(req);
+  const auth = await authenticate(req);
   if (auth.mode === "invalid") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
