@@ -16,7 +16,7 @@
  *     działać bez tokenu na współdzielonych wpisach (userId === null).
  */
 
-import { tokenRepository } from "@/lib/repository/json-token-repository";
+import { tokenRepository } from "@/lib/repository/tokens";
 
 export type AuthContext =
   | { mode: "user"; userId: string }

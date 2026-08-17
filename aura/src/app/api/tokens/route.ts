@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { tokenRepository } from "@/lib/repository/json-token-repository";
+import { tokenRepository } from "@/lib/repository/tokens";
 import { getOwnerUserId } from "@/lib/owner";
 
 // crypto (SHA-256) w magazynie → runtime Node.
