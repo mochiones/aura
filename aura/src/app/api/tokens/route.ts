@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { tokenRepository } from "@/lib/repository/tokens";
 import { getOwnerUserId } from "@/lib/owner";
-import { supabaseEnvStatus } from "@/lib/supabase";
 
 // crypto (SHA-256) w magazynie → runtime Node.
 export const runtime = "nodejs";
@@ -11,21 +10,13 @@ export const runtime = "nodejs";
  * endpointy lokalnie bez Bearera. Tokeny są skopiowane do jednego właściciela
  * (getOwnerUserId). Do czasu Fazy 2 (auth) to celowe uproszczenie.
  */
-/** Krótki, niewrażliwy opis błędu do logu i diagnostyki (bez sekretów). */
-function detail(err: unknown): string {
-  return err instanceof Error ? err.message : "UNKNOWN";
-}
-
 export async function GET() {
   try {
     const tokens = await tokenRepository.list(getOwnerUserId());
     return NextResponse.json(tokens);
   } catch (err) {
     console.error("[Aura] GET /api/tokens error:", err);
-    return NextResponse.json(
-      { error: "Failed to load tokens", detail: detail(err), supabase: supabaseEnvStatus() },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to load tokens" }, { status: 500 });
   }
 }
 
@@ -36,9 +27,6 @@ export async function POST() {
     return NextResponse.json({ token, ...record }, { status: 201 });
   } catch (err) {
     console.error("[Aura] POST /api/tokens error:", err);
-    return NextResponse.json(
-      { error: "Failed to create token", detail: detail(err), supabase: supabaseEnvStatus() },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to create token" }, { status: 500 });
   }
 }

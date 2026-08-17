@@ -21,20 +21,6 @@ export function isSupabaseConfigured(): boolean {
   return Boolean(SUPABASE_URL && SUPABASE_SECRET);
 }
 
-/**
- * Diagnostyka obecności zmiennych (tylko booleany, bez wartości/sekretów).
- * `npUrl` = NEXT_PUBLIC_SUPABASE_URL (wpalane przy buildzie), `url` = SUPABASE_URL
- * (runtime), `secret` = SUPABASE_SECRET_KEY (runtime).
- */
-export function supabaseEnvStatus() {
-  return {
-    npUrl: Boolean((process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").trim()),
-    url: Boolean((process.env.SUPABASE_URL ?? "").trim()),
-    secret: Boolean((process.env.SUPABASE_SECRET_KEY ?? "").trim()),
-    configured: isSupabaseConfigured(),
-  };
-}
-
 /** Wywołanie PostgREST. `path` np. `api_tokens?select=id`. */
 export async function supabaseRest(
   path: string,
