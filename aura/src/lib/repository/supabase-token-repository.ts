@@ -19,6 +19,17 @@ function toPublic(r: Row): PublicToken {
   return { id: r.id, prefix: r.prefix, createdAt: r.created_at };
 }
 
+/** Rzuca błąd z kodem HTTP + fragmentem body — żeby przyczyna była widoczna. */
+async function fail(op: string, res: Response): Promise<never> {
+  let body = "";
+  try {
+    body = (await res.text()).slice(0, 200);
+  } catch {
+    /* ignore */
+  }
+  throw new Error(`SUPABASE_${op}_FAILED ${res.status} ${body}`);
+}
+
 /** TokenRepository na Supabase (PostgREST). Przechowuje HASH, nie jawny token. */
 class SupabaseTokenRepository implements TokenRepository {
   async list(userId: string): Promise<PublicToken[]> {
@@ -27,7 +38,7 @@ class SupabaseTokenRepository implements TokenRepository {
         userId
       )}&order=created_at.desc`
     );
-    if (!res.ok) throw new Error("SUPABASE_LIST_FAILED");
+    if (!res.ok) await fail("LIST", res);
     const rows = (await res.json()) as Row[];
     return rows.map(toPublic);
   }
@@ -47,7 +58,7 @@ class SupabaseTokenRepository implements TokenRepository {
       headers: { Prefer: "return=representation" },
       body: JSON.stringify(insert),
     });
-    if (!res.ok) throw new Error("SUPABASE_CREATE_FAILED");
+    if (!res.ok) await fail("CREATE", res);
     const [created] = (await res.json()) as Row[];
     return { token, record: toPublic(created) };
   }
@@ -69,7 +80,7 @@ class SupabaseTokenRepository implements TokenRepository {
       )}&select=id`,
       { method: "DELETE", headers: { Prefer: "return=representation" } }
     );
-    if (!res.ok) throw new Error("SUPABASE_REVOKE_FAILED");
+    if (!res.ok) await fail("REVOKE", res);
     const rows = (await res.json()) as Row[];
     return rows.length > 0;
   }

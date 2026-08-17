@@ -4,8 +4,17 @@
  *
  * Używa KLUCZA SECRET (server-only) → omija RLS. NIGDY nie wołać z klienta.
  */
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_SECRET = process.env.SUPABASE_SECRET_KEY;
+
+// Normalizacja: usuwamy białe znaki i końcowe ukośniki (typowe błędy przy wklejaniu
+// wartości do panelu Vercela). URL może być pod NEXT_PUBLIC_ lub bez prefiksu.
+const SUPABASE_URL = (
+  process.env.NEXT_PUBLIC_SUPABASE_URL ??
+  process.env.SUPABASE_URL ??
+  ""
+)
+  .trim()
+  .replace(/\/+$/, "");
+const SUPABASE_SECRET = (process.env.SUPABASE_SECRET_KEY ?? "").trim();
 
 /** Czy mamy komplet konfiguracji Supabase (URL + klucz secret). */
 export function isSupabaseConfigured(): boolean {

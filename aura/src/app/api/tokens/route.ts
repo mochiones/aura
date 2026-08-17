@@ -10,12 +10,21 @@ export const runtime = "nodejs";
  * endpointy lokalnie bez Bearera. Tokeny są skopiowane do jednego właściciela
  * (getOwnerUserId). Do czasu Fazy 2 (auth) to celowe uproszczenie.
  */
+/** Krótki, niewrażliwy opis błędu do logu i diagnostyki (bez sekretów). */
+function detail(err: unknown): string {
+  return err instanceof Error ? err.message : "UNKNOWN";
+}
+
 export async function GET() {
   try {
     const tokens = await tokenRepository.list(getOwnerUserId());
     return NextResponse.json(tokens);
-  } catch {
-    return NextResponse.json({ error: "Failed to load tokens" }, { status: 500 });
+  } catch (err) {
+    console.error("[Aura] GET /api/tokens error:", err);
+    return NextResponse.json(
+      { error: "Failed to load tokens", detail: detail(err) },
+      { status: 500 }
+    );
   }
 }
 
@@ -24,7 +33,11 @@ export async function POST() {
     const { token, record } = await tokenRepository.create(getOwnerUserId());
     // Pełny token zwracamy TYLKO tutaj (raz) — potem tylko prefix.
     return NextResponse.json({ token, ...record }, { status: 201 });
-  } catch {
-    return NextResponse.json({ error: "Failed to create token" }, { status: 500 });
+  } catch (err) {
+    console.error("[Aura] POST /api/tokens error:", err);
+    return NextResponse.json(
+      { error: "Failed to create token", detail: detail(err) },
+      { status: 500 }
+    );
   }
 }
