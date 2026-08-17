@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { entryRepository } from "@/lib/repository/json-entry-repository";
+import { entryRepository } from "@/lib/repository/entries";
+import { getOwnerUserId } from "@/lib/owner";
 import type { NewEntry } from "@/types/entry";
 
 type Params = { params: Promise<{ id: string }> };
@@ -7,7 +8,8 @@ type Params = { params: Promise<{ id: string }> };
 export async function GET(_req: NextRequest, { params }: Params) {
   const { id } = await params;
   try {
-    const entry = await entryRepository.getById(id);
+    // Faza 1: jeden użytkownik — czytamy tylko wpisy ownera.
+    const entry = await entryRepository.getById(id, getOwnerUserId());
     if (!entry) {
       return NextResponse.json({ error: "Entry not found" }, { status: 404 });
     }

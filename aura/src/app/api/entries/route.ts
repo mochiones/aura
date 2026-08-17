@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { entryRepository } from "@/lib/repository/json-entry-repository";
+import { entryRepository } from "@/lib/repository/entries";
 import { authenticate } from "@/lib/api-auth";
 import { createEntry, type CreateEntryInput } from "@/lib/entries/service";
 import { ValidationError } from "@/lib/errors";

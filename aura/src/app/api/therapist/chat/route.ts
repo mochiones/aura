@@ -8,9 +8,10 @@ import {
   type UIMessage,
 } from "ai";
 import { z } from "zod";
-import { entryRepository } from "@/lib/repository/json-entry-repository";
+import { entryRepository } from "@/lib/repository/entries";
 import { sessionRepository } from "@/lib/therapist/json-session-repository";
 import { getPersona, type PersonaId } from "@/lib/therapist/persona";
+import { getOwnerUserId } from "@/lib/owner";
 import {
   formatEntryFull,
   formatEntryBrief,
@@ -55,6 +56,9 @@ export async function POST(req: Request) {
   const { messages, sessionId, openDayEntryId, persona: personaId }: ChatBody =
     await req.json();
   const persona = getPersona(personaId);
+  // Faza 1: jeden użytkownik — skopuj czytanie wpisów do ownera (Supabase ma
+  // dane wielu userów; bez tego Freud widziałby cudze wpisy).
+  const scope = getOwnerUserId();
 
   // Trwała historia: zapisz ostatnią wiadomość użytkownika przed streamowaniem.
   if (sessionId) {
@@ -71,7 +75,7 @@ export async function POST(req: Request) {
   // wiedział, "na który dzień patrzy" użytkownik (auto-dobór kontekstu — PRD §6.2).
   let system = persona.systemPrompt;
   if (openDayEntryId) {
-    const openEntry = await entryRepository.getById(openDayEntryId);
+    const openEntry = await entryRepository.getById(openDayEntryId, scope);
     if (openEntry) {
       system += `\n\n# Aktualnie otwarty dzień\nUżytkownik ma teraz otwarty wpis o id "${openEntry.id}" z dnia ${openEntry.createdAt.slice(
         0,
@@ -88,7 +92,7 @@ export async function POST(req: Request) {
         id: z.string().describe("Identyfikator wpisu do pobrania."),
       }),
       execute: async ({ id }) => {
-        const entry = await entryRepository.getById(id);
+        const entry = await entryRepository.getById(id, scope);
         if (!entry) return { found: false as const };
         return { found: true as const, entry: formatEntryFull(entry) };
       },
@@ -107,7 +111,7 @@ export async function POST(req: Request) {
           .describe("Ile ostatnich wpisów zwrócić (domyślnie 30)."),
       }),
       execute: async ({ limit }) => {
-        const all = await entryRepository.getAll(); // posortowane malejąco po dacie
+        const all = await entryRepository.getAll(scope); // posortowane malejąco po dacie
         const slice = all.slice(0, limit);
         return {
           count: slice.length,
@@ -121,7 +125,7 @@ export async function POST(req: Request) {
         "Zwraca agregaty nastroju z całej historii (średnia, rozkład 1–5, zakres dat, częste tagi). Tanie spojrzenie na trendy — użyj przy pytaniach o zmiany nastroju w czasie.",
       inputSchema: z.object({}),
       execute: async () => {
-        const all = await entryRepository.getAll();
+        const all = await entryRepository.getAll(scope);
         return buildMoodSummary(all);
       },
     }),

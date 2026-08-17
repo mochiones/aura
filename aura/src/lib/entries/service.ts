@@ -2,7 +2,7 @@
  * Serwis wpisów — wspólna logika dla API (route handlers) i MCP.
  * Jedno źródło prawdy dla walidacji i domyślnych wartości (bez dryfu).
  */
-import { entryRepository } from "@/lib/repository/json-entry-repository";
+import { entryRepository } from "@/lib/repository/entries";
 import { isValidIsoDate } from "@/lib/api-auth";
 import { ValidationError } from "@/lib/errors";
 import type { Entry, Mood } from "@/types/entry";

@@ -17,10 +17,11 @@
  */
 
 import { tokenRepository } from "@/lib/repository/tokens";
+import { getOwnerUserId } from "@/lib/owner";
 
 export type AuthContext =
   | { mode: "user"; userId: string }
-  | { mode: "local"; userId: null }
+  | { mode: "local"; userId: string }
   | { mode: "invalid"; userId: null };
 
 /** Wczytuje mapę token→userId z env. Puste/niepoprawne = brak tokenów. */
@@ -43,7 +44,9 @@ function loadTokenMap(): Record<string, string> {
 /** Ustala tożsamość na podstawie nagłówka Authorization: Bearer <token>. */
 export async function authenticate(req: Request): Promise<AuthContext> {
   const header = req.headers.get("authorization");
-  if (!header) return { mode: "local", userId: null };
+  // Faza 1: brak logowania = jeden użytkownik (owner). Bez tokenu web UI i API
+  // działają jako owner, żeby widzieć/zapisywać jego wpisy w Supabase.
+  if (!header) return { mode: "local", userId: getOwnerUserId() };
 
   const match = /^Bearer\s+(.+)$/i.exec(header.trim());
   const token = match?.[1]?.trim();

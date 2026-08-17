@@ -6,7 +6,7 @@
 import { createXai } from "@ai-sdk/xai";
 import { generateText, tool, stepCountIs } from "ai";
 import { z } from "zod";
-import { entryRepository } from "@/lib/repository/json-entry-repository";
+import { entryRepository } from "@/lib/repository/entries";
 import { getPersona, type PersonaId } from "@/lib/therapist/persona";
 import {
   formatEntryFull,
