@@ -4,7 +4,7 @@ import "./globals.css";
 import { EntriesProvider } from "@/context/entries-context";
 import { DesktopHeader } from "@/components/navigation/desktop-header";
 import { MobileNav } from "@/components/navigation/mobile-nav";
-import { EntriesSidebar } from "@/components/entries-sidebar";
+import { EntriesSidebarSlot } from "@/components/navigation/entries-sidebar-slot";
 import { Toaster } from "@/components/ui/sonner";
 
 const roboto = Roboto({
@@ -31,7 +31,7 @@ export default function RootLayout({
 
           {/* Desktop: two-column layout, niezależne scrollowanie paneli */}
           <div className="hidden md:flex flex-1 overflow-hidden">
-            <EntriesSidebar />
+            <EntriesSidebarSlot />
             <main className="flex-1 overflow-y-auto">{children}</main>
           </div>
 

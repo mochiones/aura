@@ -1,84 +1,20 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { Card, Code, Method, Mono, Td, Th } from "@/components/docs/ui";
 
 export const metadata = {
   title: "Dokumentacja API — Aura",
 };
 
-/** Znaczek metody HTTP (GET/POST). */
-function Method({ method }: { method: "GET" | "POST" }) {
-  const color =
-    method === "GET"
-      ? "bg-emerald-100 text-emerald-800"
-      : "bg-indigo-100 text-indigo-800";
+export default function DocsApiPage() {
   return (
-    <span
-      className={`inline-block rounded-md px-2 py-0.5 text-[11px] font-bold tracking-wide ${color}`}
-    >
-      {method}
-    </span>
-  );
-}
-
-/** Blok kodu (curl / JSON) — ciemne tło, przewijalny w poziomie. */
-function Code({ children }: { children: string }) {
-  return (
-    <pre className="overflow-x-auto rounded-lg bg-[#1A1A2E] px-4 py-3 text-[12.5px] leading-relaxed text-[#E8E6DF]">
-      <code>{children}</code>
-    </pre>
-  );
-}
-
-/** Sekcja-karta. */
-function Card({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <section
-      className={`rounded-2xl border border-[#EBEBF0] bg-white p-5 sm:p-6 ${className}`}
-    >
-      {children}
-    </section>
-  );
-}
-
-function Th({ children }: { children: React.ReactNode }) {
-  return (
-    <th className="border-b border-[#EBEBF0] px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wide text-[#9B9BAD]">
-      {children}
-    </th>
-  );
-}
-
-function Td({ children }: { children: React.ReactNode }) {
-  return (
-    <td className="border-b border-[#EBEBF0]/70 px-3 py-2 align-top text-[13px] text-[#1A1A2E]">
-      {children}
-    </td>
-  );
-}
-
-/** Fragment kodu inline. */
-function Mono({ children }: { children: React.ReactNode }) {
-  return (
-    <code className="rounded bg-black/[0.06] px-1.5 py-0.5 text-[12.5px] text-[#1A1A2E]">
-      {children}
-    </code>
-  );
-}
-
-export default function DocsPage() {
-  return (
-    <div className="mx-auto max-w-3xl px-5 py-8 sm:px-8">
+    <div className="max-w-3xl">
       {/* Nagłówek */}
       <div className="mb-8">
+        {/* Na desktopie przycisk powrotu jest w pasku bocznym (DocsSidebar). */}
         <Link
           href="/"
-          className="mb-4 inline-flex items-center gap-1.5 text-[13px] text-[#9B9BAD] transition-colors hover:text-[#1A1A2E]"
+          className="mb-4 md:hidden inline-flex items-center gap-1.5 text-[13px] text-[#9B9BAD] transition-colors hover:text-[#1A1A2E]"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Powrót do wpisów
@@ -150,8 +86,8 @@ export default function DocsPage() {
           </p>
         </Card>
 
-        {/* Endpoint 1 */}
-        <Card>
+        {/* Endpoint 1 — create */}
+        <Card id="create">
           <div className="flex flex-wrap items-center gap-2">
             <Method method="POST" />
             <Mono>/api/entries</Mono>
@@ -258,8 +194,8 @@ export default function DocsPage() {
           </div>
         </Card>
 
-        {/* Endpoint 2 */}
-        <Card>
+        {/* Endpoint 2 — ask */}
+        <Card id="ask">
           <div className="flex flex-wrap items-center gap-2">
             <Method method="POST" />
             <Mono>/api/therapist/ask</Mono>
@@ -349,8 +285,8 @@ export default function DocsPage() {
           </div>
         </Card>
 
-        {/* Endpoint 3 */}
-        <Card>
+        {/* Endpoint 3 — read */}
+        <Card id="read">
           <div className="flex flex-wrap items-center gap-2">
             <Method method="GET" />
             <Mono>/api/entries/day/{`{date}`}</Mono>
