@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { tokenRepository } from "@/lib/repository/tokens";
 import { getOwnerUserId } from "@/lib/owner";
+import { supabaseEnvStatus } from "@/lib/supabase";
 
 // crypto (SHA-256) w magazynie → runtime Node.
 export const runtime = "nodejs";
@@ -22,7 +23,7 @@ export async function GET() {
   } catch (err) {
     console.error("[Aura] GET /api/tokens error:", err);
     return NextResponse.json(
-      { error: "Failed to load tokens", detail: detail(err) },
+      { error: "Failed to load tokens", detail: detail(err), supabase: supabaseEnvStatus() },
       { status: 500 }
     );
   }
@@ -36,7 +37,7 @@ export async function POST() {
   } catch (err) {
     console.error("[Aura] POST /api/tokens error:", err);
     return NextResponse.json(
-      { error: "Failed to create token", detail: detail(err) },
+      { error: "Failed to create token", detail: detail(err), supabase: supabaseEnvStatus() },
       { status: 500 }
     );
   }
