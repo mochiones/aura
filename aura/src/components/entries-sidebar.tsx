@@ -3,13 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Plus, Search, X } from "lucide-react";
+import { FileText, LogOut, Plus, Search, X } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEntries } from "@/context/entries-context";
 import { MOOD_ARIA_LABELS, MOOD_EMOJI, MOODS } from "@/lib/mood";
+import { USER_EMAIL } from "@/lib/user";
 import type { Entry, Mood } from "@/types/entry";
 
 function stripHtml(html: string): string {
@@ -285,6 +287,41 @@ export function EntriesSidebar() {
             ? "Brak wpisów"
             : `${entries.length} ${entries.length === 1 ? "wpis" : entries.length < 5 ? "wpisy" : "wpisów"}`}
         </p>
+      </div>
+
+      {/* Belka użytkownika: e-mail + dokumentacja API + wylogowanie */}
+      <div className="border-t border-[#DDDBD6] px-4 py-2 flex items-center justify-between gap-2">
+        <span
+          className="text-[11px] text-[#9B9BAD] truncate"
+          title={USER_EMAIL}
+        >
+          {USER_EMAIL}
+        </span>
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <Link
+            href="/docs"
+            aria-label="Dokumentacja API"
+            aria-current={pathname === "/docs" ? "page" : undefined}
+            className={cn(
+              "h-7 w-7 rounded-lg flex items-center justify-center transition-colors",
+              pathname === "/docs"
+                ? "bg-[#1A1A2E]/10 text-[#1A1A2E]"
+                : "text-[#9B9BAD] hover:text-[#1A1A2E] hover:bg-black/[0.04]"
+            )}
+          >
+            <FileText className="h-4 w-4" />
+          </Link>
+          <button
+            type="button"
+            aria-label="Wyloguj"
+            onClick={() =>
+              toast("Wylogowanie będzie dostępne po dodaniu logowania (Faza 2)")
+            }
+            className="h-7 w-7 rounded-lg flex items-center justify-center text-[#9B9BAD] hover:text-[#1A1A2E] hover:bg-black/[0.04] transition-colors"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </aside>
   );

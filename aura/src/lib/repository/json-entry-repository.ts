@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import type { Entry, NewEntry } from "@/types/entry";
-import type { EntryRepository } from "./entry-repository";
+import type { CreateOptions, EntryRepository } from "./entry-repository";
 
 const DATA_PATH = path.join(process.cwd(), "data", "entries.json");
 
@@ -35,28 +35,33 @@ async function writeFile(entries: Entry[]): Promise<void> {
 }
 
 class JsonEntryRepository implements EntryRepository {
-  async getAll(): Promise<Entry[]> {
+  async getAll(userId?: string | null): Promise<Entry[]> {
     const entries = await readFile();
-    return entries.sort(
+    const scoped =
+      userId === undefined ? entries : entries.filter((e) => e.userId === userId);
+    return scoped.sort(
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
   }
 
-  async getById(id: string): Promise<Entry | null> {
+  async getById(id: string, userId?: string | null): Promise<Entry | null> {
     const entries = await readFile();
-    return entries.find((e) => e.id === id) ?? null;
+    const entry = entries.find((e) => e.id === id) ?? null;
+    if (!entry) return null;
+    if (userId !== undefined && entry.userId !== userId) return null;
+    return entry;
   }
 
-  async create(data: NewEntry): Promise<Entry> {
+  async create(data: NewEntry, opts?: CreateOptions): Promise<Entry> {
     const entries = await readFile();
     const now = new Date().toISOString();
     const entry: Entry = {
       id: uuidv4(),
       ...data,
-      createdAt: now,
+      createdAt: opts?.createdAt ?? now,
       updatedAt: now,
-      userId: null,
+      userId: opts?.userId ?? null,
     };
     entries.push(entry);
     await writeFile(entries);
