@@ -12,6 +12,8 @@ interface Row {
   created_at: string;
   updated_at: string;
   user_id: string | null;
+  // PostgREST zwraca pgvector jako tekstową reprezentację "[0.01,0.02,...]".
+  embedding: string | null;
 }
 
 function toEntry(r: Row): Entry {
@@ -24,6 +26,7 @@ function toEntry(r: Row): Entry {
     createdAt: r.created_at,
     updatedAt: r.updated_at,
     userId: r.user_id,
+    embedding: r.embedding ? (JSON.parse(r.embedding) as number[]) : null,
   };
 }
 
@@ -74,6 +77,7 @@ class SupabaseEntryRepository implements EntryRepository {
       tags: data.tags,
       mood: data.mood,
       user_id: opts?.userId ?? null,
+      embedding: data.embedding ?? null,
     };
     if (opts?.createdAt) insert.created_at = opts.createdAt;
 
@@ -93,6 +97,7 @@ class SupabaseEntryRepository implements EntryRepository {
     if (data.content !== undefined) patch.content = data.content;
     if (data.tags !== undefined) patch.tags = data.tags;
     if (data.mood !== undefined) patch.mood = data.mood;
+    if (data.embedding !== undefined) patch.embedding = data.embedding;
 
     const res = await supabaseRest(
       `entries?id=eq.${encodeURIComponent(id)}&select=*`,

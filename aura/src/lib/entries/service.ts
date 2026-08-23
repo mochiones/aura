@@ -5,6 +5,8 @@
 import { entryRepository } from "@/lib/repository/entries";
 import { isValidIsoDate } from "@/lib/api-auth";
 import { ValidationError } from "@/lib/errors";
+import { stripHtml } from "@/lib/therapist/entry-context";
+import { computeEmbedding } from "@/lib/embeddings";
 import type { Entry, Mood } from "@/types/entry";
 
 export interface CreateEntryInput {
@@ -54,8 +56,15 @@ export async function createEntry(
 
   const title = input.title?.trim() || `Wpis z dnia ${day}`;
 
+  let embedding: number[] | null = null;
+  try {
+    embedding = await computeEmbedding(stripHtml(input.content));
+  } catch (err) {
+    console.warn("[Aura] Nie udało się policzyć embeddingu:", err);
+  }
+
   return entryRepository.create(
-    { title, content: input.content, tags: input.tags ?? [], mood },
+    { title, content: input.content, tags: input.tags ?? [], mood, embedding },
     { userId, createdAt }
   );
 }

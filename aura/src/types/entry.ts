@@ -9,6 +9,10 @@ export interface Entry {
   createdAt: string; // ISO 8601
   updatedAt: string;
   userId: string | null; // null in Phase 1
+  embedding: number[] | null; // text-embedding-3-small, liczone server-side
 }
 
-export type NewEntry = Omit<Entry, "id" | "createdAt" | "updatedAt" | "userId">;
+export type NewEntry = Omit<
+  Entry,
+  "id" | "createdAt" | "updatedAt" | "userId" | "embedding"
+> & { embedding?: number[] | null };

@@ -59,6 +59,7 @@ class JsonEntryRepository implements EntryRepository {
     const entry: Entry = {
       id: uuidv4(),
       ...data,
+      embedding: data.embedding ?? null,
       createdAt: opts?.createdAt ?? now,
       updatedAt: now,
       userId: opts?.userId ?? null,
