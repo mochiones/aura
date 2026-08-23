@@ -29,7 +29,7 @@ export default function DocsApiPage() {
           psychoterapeuty (Freud) oraz odczyt wpisu na konkretny dzień.
         </p>
         <p className="mt-2 text-[13px] text-[#9B9BAD]">
-          Bazowy URL (dev): <Mono>http://localhost:3002</Mono> · Format: JSON
+          Bazowy URL: <Mono>https://aura-eightup.vercel.app</Mono> · Format: JSON
         </p>
       </div>
 
@@ -182,7 +182,7 @@ export default function DocsApiPage() {
             Przykład
           </h3>
           <div className="mt-2 space-y-2">
-            <Code>{`curl -X POST http://localhost:3002/api/entries \\
+            <Code>{`curl -X POST https://aura-eightup.vercel.app/api/entries \\
   -H "Authorization: Bearer TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{"content":"Dziś było spokojnie","mood":4}'`}</Code>
@@ -282,7 +282,7 @@ export default function DocsApiPage() {
             Przykład
           </h3>
           <div className="mt-2 space-y-2">
-            <Code>{`curl -X POST http://localhost:3002/api/therapist/ask \\
+            <Code>{`curl -X POST https://aura-eightup.vercel.app/api/therapist/ask \\
   -H "Authorization: Bearer TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{"question":"Jak zmieniał się mój nastrój?","day":"2026-08-14"}'`}</Code>
@@ -326,7 +326,7 @@ export default function DocsApiPage() {
             Przykłady
           </h3>
           <div className="mt-2 space-y-2">
-            <Code>{`curl http://localhost:3002/api/entries/day/2026-08-10 \\
+            <Code>{`curl https://aura-eightup.vercel.app/api/entries/day/2026-08-10 \\
   -H "Authorization: Bearer TOKEN"`}</Code>
             <Code>{`{
   "date": "2026-08-10",

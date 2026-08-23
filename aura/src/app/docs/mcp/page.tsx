@@ -29,7 +29,7 @@ export default function DocsMcpPage() {
           HTTP).
         </p>
         <p className="mt-2 text-[13px] text-[#9B9BAD]">
-          Endpoint (dev): <Mono>http://localhost:3002/api/mcp</Mono> · Transport:
+          Endpoint: <Mono>https://aura-eightup.vercel.app/api/mcp</Mono> · Transport:
           Streamable HTTP
         </p>
       </div>
@@ -50,7 +50,7 @@ export default function DocsMcpPage() {
           </h3>
           <div className="mt-2">
             <Code>{`claude mcp add --transport http aura \\
-  http://localhost:3002/api/mcp \\
+  https://aura-eightup.vercel.app/api/mcp \\
   --header "Authorization: Bearer TOKEN"`}</Code>
           </div>
 
@@ -62,7 +62,7 @@ export default function DocsMcpPage() {
   "mcpServers": {
     "aura": {
       "type": "http",
-      "url": "http://localhost:3002/api/mcp",
+      "url": "https://aura-eightup.vercel.app/api/mcp",
       "headers": { "Authorization": "Bearer TOKEN" }
     }
   }

@@ -4,7 +4,7 @@ Zestaw endpointów do programistycznego sterowania aplikacją Aura. Trzy proste
 operacje, każda **per użytkownik**: dodanie wpisu, zapytanie do psychoterapeuty
 (Freud), odczyt wpisu na konkretny dzień.
 
-- Bazowy URL (dev): `http://localhost:3002`
+- Bazowy URL: `https://aura-eightup.vercel.app`
 - Format: JSON (`Content-Type: application/json`)
 
 ---
@@ -67,7 +67,7 @@ POST /api/entries
 ### Przykład
 
 ```bash
-curl -X POST http://localhost:3002/api/entries \
+curl -X POST https://aura-eightup.vercel.app/api/entries \
   -H "Authorization: Bearer TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"content":"Dziś było spokojnie","mood":4}'
@@ -123,7 +123,7 @@ i może sięgnąć po szerszą historię.
 ### Przykład
 
 ```bash
-curl -X POST http://localhost:3002/api/therapist/ask \
+curl -X POST https://aura-eightup.vercel.app/api/therapist/ask \
   -H "Authorization: Bearer TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"question":"Jak zmieniał się mój nastrój w tym tygodniu?","day":"2026-08-14"}'
@@ -159,7 +159,7 @@ GET /api/entries/day/{date}
 ### Przykłady
 
 ```bash
-curl http://localhost:3002/api/entries/day/2026-08-10 \
+curl https://aura-eightup.vercel.app/api/entries/day/2026-08-10 \
   -H "Authorization: Bearer TOKEN"
 ```
 
