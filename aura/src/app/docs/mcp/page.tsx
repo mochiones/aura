@@ -71,6 +71,46 @@ export default function DocsMcpPage() {
           <p className="mt-3 text-[13px] text-[#9B9BAD]">
             <Mono>TOKEN</Mono> to wartość Twojego tokenu z <Mono>.env.local</Mono>.
           </p>
+
+          <p className="mt-4 rounded-lg bg-[#F2F1EC] px-4 py-3 text-[13px] text-[#5A5A6E]">
+            <strong>Wymagany nagłówek Accept.</strong> Transport Streamable HTTP
+            wymaga, aby żądanie deklarowało akceptację obu formatów:{" "}
+            <Mono>Accept: application/json, text/event-stream</Mono>. Klienci MCP
+            (np. Claude Code) ustawiają go automatycznie — ale przy ręcznym
+            teście przez <Mono>curl</Mono> trzeba dodać go samodzielnie, inaczej
+            serwer odrzuci żądanie z błędem <Mono>406 Not Acceptable</Mono> (co
+            wygląda jak awaria serwera, a jest tylko brakiem tego nagłówka).
+          </p>
+          <div className="mt-2">
+            <Code>{`curl -X POST https://aura-eightup.vercel.app/api/mcp \\
+  -H "Authorization: Bearer TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -H "Accept: application/json, text/event-stream" \\
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_day_entry","arguments":{"date":"2026-08-10"}}}'`}</Code>
+          </div>
+        </Card>
+
+        {/* Limity zapytań */}
+        <Card id="limity">
+          <h2 className="text-lg font-bold text-[#1A1A2E]">Limity zapytań</h2>
+          <p className="mt-2 text-[14px] text-[#5A5A6E]">
+            Serwer MCP nie ma własnego rate limitingu (brak limitu liczby
+            zapytań na minutę per token czy per IP). W praktyce obowiązują dwa
+            inne ograniczenia:
+          </p>
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-[13px] text-[#5A5A6E]">
+            <li>
+              <strong>Timeout funkcji (Vercel):</strong> każde żądanie ma
+              maksymalnie <Mono>30 s</Mono> (<Mono>maxDuration = 30</Mono>) —
+              po tym czasie funkcja jest przerywana i klient dostaje błąd.
+            </li>
+            <li>
+              <strong>Limity dostawcy modelu:</strong> narzędzie{" "}
+              <Mono>ask_therapist</Mono> woła API xAI (Grok) — jeśli ten
+              provider zwróci błąd przekroczenia limitu, propaguje się on jako
+              błąd narzędzia (nie jest to ograniczenie nałożone przez Aurę).
+            </li>
+          </ul>
         </Card>
 
         {/* Narzędzia */}
@@ -142,6 +182,18 @@ export default function DocsMcpPage() {
   }
 }`}</Code>
           </div>
+
+          <p className="mt-4 rounded-lg bg-[#F2F1EC] px-4 py-3 text-[13px] text-[#5A5A6E]">
+            <strong>Strefa czasowa dnia wpisu.</strong> Gdy nie podasz{" "}
+            <Mono>date</Mono>/<Mono>day</Mono>, „dziś" liczone jest według
+            zegara serwera w <Mono>UTC</Mono>, nie w Twojej strefie lokalnej —
+            blisko północy czasu polskiego może to więc wskazywać inny dzień
+            niż na Twoim zegarku. Gdy podasz <Mono>date</Mono> jawnie, wpis
+            zapisywany jest z <Mono>createdAt</Mono> ustawionym na{" "}
+            <Mono>12:00:00 UTC</Mono> tego dnia (południe), co chroni przed
+            przesunięciem daty przy późniejszej konwersji na strefy lokalne.
+          </p>
+
           <p className="mt-3 text-[13px] text-[#9B9BAD]">
             Szczegóły pól i kody błędów — patrz{" "}
             <Link

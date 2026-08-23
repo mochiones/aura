@@ -40,6 +40,20 @@ W przykładach poniżej `TOKEN` = wartość Twojego tokenu.
 
 ---
 
+## Limity zapytań
+
+API nie ma własnego rate limitingu (brak limitu liczby zapytań na minutę per
+token czy per IP). W praktyce obowiązują dwa inne ograniczenia:
+
+- **Timeout funkcji (Vercel):** endpoint `POST /api/therapist/ask` ma
+  maksymalnie `30 s` (`maxDuration = 30`) — po tym czasie funkcja jest
+  przerywana i klient dostaje błąd.
+- **Limity dostawcy modelu:** ten sam endpoint woła API xAI (Grok) — jeśli
+  provider zwróci błąd przekroczenia limitu, propaguje się on jako `500`
+  (nie jest to ograniczenie nałożone przez Aurę).
+
+---
+
 ## 1. Dodanie wpisu
 
 Tworzy nowy wpis. Domyślnie na dziś; opcjonalnie z oceną nastroju.
@@ -86,8 +100,12 @@ curl -X POST https://aura-eightup.vercel.app/api/entries \
 }
 ```
 
-> Gdy podasz `date`, `createdAt` ustawiane jest na `<date>T12:00:00.000Z`
-> (południe UTC — unika przesunięcia dnia przy konwersji stref czasowych).
+> **Strefa czasowa dnia wpisu.** Gdy nie podasz `date`, „dziś" liczone jest
+> według zegara serwera w **UTC**, nie w Twojej strefie lokalnej — blisko
+> północy czasu polskiego może to wskazywać inny dzień niż na Twoim zegarku.
+> Gdy podasz `date` jawnie, `createdAt` ustawiane jest na
+> `<date>T12:00:00.000Z` (południe UTC — unika przesunięcia dnia przy
+> konwersji stref czasowych).
 
 ---
 
@@ -109,9 +127,10 @@ POST /api/therapist/ask
 | `persona` | string | nie | `"freud"` | Persona agenta. |
 
 Domyślnie pytanie zadawane jest w kontekście **dzisiejszego** dnia (tak jakby
-użytkownik miał otwarty dzisiejszy wpis). Podanie `day` przełącza kontekst na
-inny dzień. Jeśli na wskazany dzień nie ma wpisu, agent jest o tym informowany
-i może sięgnąć po szerszą historię.
+użytkownik miał otwarty dzisiejszy wpis). „Dzisiejszy" liczony jest według
+zegara serwera w **UTC** (patrz uwaga o strefie czasowej przy endpoincie 1).
+Podanie `day` przełącza kontekst na inny dzień. Jeśli na wskazany dzień nie ma
+wpisu, agent jest o tym informowany i może sięgnąć po szerszą historię.
 
 ### Odpowiedzi
 
