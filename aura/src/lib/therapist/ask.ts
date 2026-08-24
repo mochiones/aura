@@ -7,6 +7,7 @@ import { createXai } from "@ai-sdk/xai";
 import { generateText, tool, stepCountIs } from "ai";
 import { z } from "zod";
 import { entryRepository } from "@/lib/repository/entries";
+import { computeEmbedding } from "@/lib/embeddings";
 import { getPersona, type PersonaId } from "@/lib/therapist/persona";
 import {
   formatEntryFull,
@@ -84,7 +85,9 @@ export async function askTherapist({
 
     listEntries: tool({
       description:
-        "Zwraca skrótową listę ostatnich wpisów (data, nastrój, tytuł, fragment). Użyj przy pytaniach ogólnych o wiele dni.",
+        "Zwraca skrótową listę najnowszych wpisów w kolejności chronologicznej (data, nastrój, tytuł, fragment). " +
+        "Użyj przy ogólnym przeglądzie ('pokaż mi ostatnie wpisy'), nie przy pytaniach o konkretny temat — " +
+        "do tego użyj searchEntries.",
       inputSchema: z.object({
         limit: z
           .number()
@@ -100,6 +103,35 @@ export async function askTherapist({
         return {
           count: slice.length,
           entries: slice.map((e) => formatEntryBrief(e)),
+        };
+      },
+    }),
+
+    searchEntries: tool({
+      description:
+        "Wyszukuje wpisy pasujące tematycznie do zapytania (dopasowanie semantyczne + słowa kluczowe) " +
+        "i zawsze dokłada wpisy z ostatnich 7 dni jako świeży kontekst. Użyj przy pytaniach o konkretny " +
+        "temat, uczucie lub wydarzenie (np. 'kiedy pisałem o pracy', 'wczoraj się pokłóciłem z X'). " +
+        "Do ogólnego przeglądu chronologicznego użyj listEntries.",
+      inputSchema: z.object({
+        query: z.string().min(1).describe("Fraza lub temat do wyszukania w treści wpisów."),
+      }),
+      execute: async ({ query }) => {
+        if (scope === null) return { count: 0, entries: [] };
+        let queryEmbedding: number[] | null = null;
+        try {
+          queryEmbedding = await computeEmbedding(query);
+        } catch (err) {
+          console.warn("[Aura] searchEntries: nie udało się policzyć embeddingu zapytania:", err);
+        }
+        const results = await entryRepository.search({
+          userId: scope,
+          queryText: query,
+          queryEmbedding,
+        });
+        return {
+          count: results.length,
+          entries: results.map((e) => formatEntryBrief(e)),
         };
       },
     }),

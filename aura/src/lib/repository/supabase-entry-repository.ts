@@ -1,6 +1,13 @@
 import { supabaseRest } from "@/lib/supabase";
 import type { Entry, Mood, NewEntry } from "@/types/entry";
-import type { CreateOptions, EntryRepository, MutateOptions } from "./entry-repository";
+import type {
+  CreateOptions,
+  EntryRepository,
+  MatchSource,
+  MutateOptions,
+  SearchOptions,
+  SearchResultEntry,
+} from "./entry-repository";
 
 /** Wiersz z tabeli public.entries (snake_case). */
 interface Row {
@@ -14,6 +21,19 @@ interface Row {
   user_id: string | null;
   // PostgREST zwraca pgvector jako tekstową reprezentację "[0.01,0.02,...]".
   embedding: string | null;
+}
+
+/** Wiersz zwracany przez RPC hybrid_search_entries (bez kolumny embedding). */
+interface SearchRow {
+  id: string;
+  title: string;
+  content: string;
+  tags: string[] | null;
+  mood: number | null;
+  created_at: string;
+  updated_at: string;
+  user_id: string | null;
+  match_source: MatchSource;
 }
 
 function toEntry(r: Row): Entry {
@@ -127,6 +147,29 @@ class SupabaseEntryRepository implements EntryRepository {
     if (!res.ok) await fail("DELETE", res);
     const rows = (await res.json()) as { id: string }[];
     if (rows.length === 0) throw new Error("NOT_FOUND");
+  }
+
+  async search({
+    userId,
+    queryText,
+    queryEmbedding,
+    recentDays = 7,
+  }: SearchOptions): Promise<SearchResultEntry[]> {
+    const res = await supabaseRest("rpc/hybrid_search_entries", {
+      method: "POST",
+      body: JSON.stringify({
+        p_user_id: userId,
+        p_query_text: queryText,
+        p_query_embedding: queryEmbedding,
+        p_recent_days: recentDays,
+      }),
+    });
+    if (!res.ok) await fail("SEARCH", res);
+    const rows = (await res.json()) as SearchRow[];
+    return rows.map((r) => ({
+      ...toEntry({ ...r, embedding: null }),
+      matchSource: r.match_source,
+    }));
   }
 }
 

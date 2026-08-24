@@ -2,7 +2,27 @@ import fs from "fs/promises";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import type { Entry, NewEntry } from "@/types/entry";
-import type { CreateOptions, EntryRepository, MutateOptions } from "./entry-repository";
+import { stripHtml } from "@/lib/therapist/entry-context";
+import type {
+  CreateOptions,
+  EntryRepository,
+  MatchSource,
+  MutateOptions,
+  SearchOptions,
+  SearchResultEntry,
+} from "./entry-repository";
+
+function cosineSimilarity(a: number[], b: number[]): number {
+  let dot = 0;
+  let na = 0;
+  let nb = 0;
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    na += a[i] * a[i];
+    nb += b[i] * b[i];
+  }
+  return na && nb ? dot / (Math.sqrt(na) * Math.sqrt(nb)) : 0;
+}
 
 const DATA_PATH = path.join(process.cwd(), "data", "entries.json");
 
@@ -95,6 +115,53 @@ class JsonEntryRepository implements EntryRepository {
     }
     entries.splice(idx, 1);
     await writeFile(entries);
+  }
+
+  /**
+   * Fallback dev/offline dla hybrid search: substring match zamiast FTS,
+   * ręczna cosine similarity zamiast pgvector, plus wpisy z ostatnich dni.
+   */
+  async search({
+    userId,
+    queryText,
+    queryEmbedding,
+    recentDays = 7,
+  }: SearchOptions): Promise<SearchResultEntry[]> {
+    const all = (await this.getAll(userId)).filter((e) => e.userId === userId);
+    const q = queryText.toLowerCase();
+
+    const ftsMatches = all
+      .filter(
+        (e) =>
+          e.title.toLowerCase().includes(q) ||
+          stripHtml(e.content).toLowerCase().includes(q)
+      )
+      .slice(0, 30);
+
+    const vectorMatches = queryEmbedding
+      ? all
+          .filter((e): e is Entry & { embedding: number[] } => e.embedding !== null)
+          .map((e) => ({ entry: e, score: cosineSimilarity(e.embedding, queryEmbedding) }))
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 30)
+          .map((x) => x.entry)
+      : [];
+
+    const cutoff = Date.now() - recentDays * 24 * 60 * 60 * 1000;
+    const recentMatches = all.filter((e) => new Date(e.createdAt).getTime() >= cutoff);
+
+    const byId = new Map<string, SearchResultEntry>();
+    const buckets: [MatchSource, Entry[]][] = [
+      ["vector", vectorMatches],
+      ["fts", ftsMatches],
+      ["recent", recentMatches],
+    ];
+    for (const [source, list] of buckets) {
+      for (const e of list) {
+        if (!byId.has(e.id)) byId.set(e.id, { ...e, matchSource: source });
+      }
+    }
+    return [...byId.values()];
   }
 }
 

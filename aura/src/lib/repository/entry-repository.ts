@@ -19,6 +19,22 @@ export interface MutateOptions {
   accessToken?: string;
 }
 
+/** Skąd pochodzi trafienie w wyszukiwaniu hybrydowym. */
+export type MatchSource = "vector" | "fts" | "recent";
+
+export interface SearchResultEntry extends Entry {
+  matchSource: MatchSource;
+}
+
+export interface SearchOptions {
+  userId: string;
+  queryText: string;
+  /** Wektor zapytania; null gdy liczenie embeddingu zawiodło (miękki fallback do FTS + recent). */
+  queryEmbedding: number[] | null;
+  /** Ile ostatnich dni zawsze dołączać jako świeży kontekst. Domyślnie 7. */
+  recentDays?: number;
+}
+
 export interface EntryRepository {
   /**
    * Zwraca wpisy posortowane malejąco po dacie.
@@ -31,4 +47,9 @@ export interface EntryRepository {
   create(data: NewEntry, opts?: CreateOptions): Promise<Entry>;
   update(id: string, data: Partial<NewEntry>, opts?: MutateOptions): Promise<Entry>;
   delete(id: string, opts?: MutateOptions): Promise<void>;
+  /**
+   * Wyszukiwanie hybrydowe: top wpisy z wektora (embedding) + top wpisy z
+   * full-text search, plus zawsze wpisy z ostatnich `recentDays` dni, zdedup.
+   */
+  search(opts: SearchOptions): Promise<SearchResultEntry[]>;
 }
