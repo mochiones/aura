@@ -9,6 +9,7 @@ import {
 } from "ai";
 import { z } from "zod";
 import { entryRepository } from "@/lib/repository/entries";
+import { computeEmbedding } from "@/lib/embeddings";
 import { sessionRepository } from "@/lib/therapist/json-session-repository";
 import { getPersona, type PersonaId } from "@/lib/therapist/persona";
 import { authenticate } from "@/lib/api-auth";
@@ -65,15 +66,14 @@ export async function POST(req: Request) {
   // ma dane wielu userów, bez tego Freud widziałby cudze wpisy.
   const scope = auth.userId;
 
+  const question = textOf(messages[messages.length - 1]);
+
   // Trwała historia: zapisz ostatnią wiadomość użytkownika przed streamowaniem.
-  if (sessionId) {
-    const userText = textOf(messages[messages.length - 1]);
-    if (userText) {
-      await sessionRepository.appendMessage(sessionId, persona.id, {
-        role: "user",
-        content: userText,
-      });
-    }
+  if (sessionId && question) {
+    await sessionRepository.appendMessage(sessionId, persona.id, {
+      role: "user",
+      content: question,
+    });
   }
 
   // Kontekst aktywnego dnia doklejamy do promptu systemowego, żeby model
@@ -87,6 +87,27 @@ export async function POST(req: Request) {
         10
       )} (tytuł: "${openEntry.title}"). Jeśli pytanie dotyczy "tego dnia", użyj getEntry z tym id.`;
     }
+  }
+
+  // Hybrid search ZAWSZE przed odpowiedzią (nie na żądanie modelu): wektor +
+  // FTS dla ostatniej wiadomości użytkownika, plus wpisy z ostatnich 7 dni
+  // jako świeży kontekst. Ten sam wzorzec co w askTherapist (ask.ts).
+  if (question) {
+    let queryEmbedding: number[] | null = null;
+    try {
+      queryEmbedding = await computeEmbedding(question);
+    } catch (err) {
+      console.warn("[Aura] /api/therapist/chat: nie udało się policzyć embeddingu pytania:", err);
+    }
+    const searchResults = await entryRepository.search({
+      userId: scope,
+      queryText: question,
+      queryEmbedding,
+    });
+    system +=
+      searchResults.length > 0
+        ? `\n\n# Wpisy pasujące do pytania (wyszukiwanie hybrydowe: dopasowanie semantyczne + słowa kluczowe + ostatnie 7 dni)\nOdpowiadaj przede wszystkim na podstawie poniższych wpisów — to najbardziej trafny dostępny kontekst.\n${searchResults.map((e) => formatEntryBrief(e)).join("\n")}`
+        : `\n\n# Wpisy pasujące do pytania\nWyszukiwanie hybrydowe nie znalazło żadnych pasujących wpisów.`;
   }
 
   const tools = {
@@ -105,7 +126,9 @@ export async function POST(req: Request) {
 
     listEntries: tool({
       description:
-        "Zwraca skrótową listę ostatnich wpisów (data, nastrój, tytuł, fragment). Użyj przy pytaniach ogólnych o wiele dni.",
+        "Zwraca skrótową listę ostatnich wpisów (data, nastrój, tytuł, fragment) w kolejności chronologicznej. " +
+        "Wyniki wyszukiwania trafiające w pytanie są już w kontekście systemowym — użyj tego narzędzia tylko " +
+        "przy ogólnym przeglądzie, gdy potrzebujesz więcej niż dostarczony kontekst.",
       inputSchema: z.object({
         limit: z
           .number()
