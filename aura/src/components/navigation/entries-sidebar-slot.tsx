@@ -2,14 +2,14 @@
 
 import { usePathname } from "next/navigation";
 import { EntriesSidebar } from "@/components/entries-sidebar";
+import { isAuthRoute } from "@/lib/utils";
 
 /**
- * Renderuje sidebar wpisów wszędzie POZA trasami /docs — tam dokumentacja ma
- * własny lewy pasek (API/MCP), więc lista wpisów jest chowana (styl standardowej
- * dokumentacji).
+ * Renderuje sidebar wpisów wszędzie POZA trasami /docs (własny lewy pasek
+ * API/MCP) i /login, /auth (pełnoekranowy ekran logowania bez chrome'u appki).
  */
 export function EntriesSidebarSlot() {
   const pathname = usePathname();
-  if (pathname.startsWith("/docs")) return null;
+  if (pathname.startsWith("/docs") || isAuthRoute(pathname)) return null;
   return <EntriesSidebar />;
 }

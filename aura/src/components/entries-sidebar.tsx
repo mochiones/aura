@@ -2,16 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { FileText, LogOut, Plus, Search, X } from "lucide-react";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEntries } from "@/context/entries-context";
 import { MOOD_ARIA_LABELS, MOOD_EMOJI, MOODS } from "@/lib/mood";
-import { USER_EMAIL } from "@/lib/user";
+import { useSupabaseUser } from "@/hooks/use-supabase-user";
+import { createBrowserSupabaseClient } from "@/lib/supabase/browser-client";
 import type { Entry, Mood } from "@/types/entry";
 
 function stripHtml(html: string): string {
@@ -117,6 +117,13 @@ export function EntriesSidebar() {
   } = useEntries();
 
   const pathname = usePathname();
+  const router = useRouter();
+  const { user } = useSupabaseUser();
+
+  const handleSignOut = async () => {
+    await createBrowserSupabaseClient().auth.signOut();
+    router.push("/login");
+  };
 
   useEffect(() => {
     fetchEntries();
@@ -293,9 +300,9 @@ export function EntriesSidebar() {
       <div className="border-t border-[#DDDBD6] px-4 py-2 flex items-center justify-between gap-2">
         <span
           className="text-[11px] text-[#9B9BAD] truncate"
-          title={USER_EMAIL}
+          title={user?.email ?? ""}
         >
-          {USER_EMAIL}
+          {user?.email ?? "…"}
         </span>
         <div className="flex items-center gap-1 flex-shrink-0">
           <Link
@@ -314,9 +321,7 @@ export function EntriesSidebar() {
           <button
             type="button"
             aria-label="Wyloguj"
-            onClick={() =>
-              toast("Wylogowanie będzie dostępne po dodaniu logowania (Faza 2)")
-            }
+            onClick={handleSignOut}
             className="h-7 w-7 rounded-lg flex items-center justify-center text-[#9B9BAD] hover:text-[#1A1A2E] hover:bg-black/[0.04] transition-colors"
           >
             <LogOut className="h-4 w-4" />

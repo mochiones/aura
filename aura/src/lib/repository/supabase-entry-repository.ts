@@ -1,6 +1,6 @@
 import { supabaseRest } from "@/lib/supabase";
 import type { Entry, Mood, NewEntry } from "@/types/entry";
-import type { CreateOptions, EntryRepository } from "./entry-repository";
+import type { CreateOptions, EntryRepository, MutateOptions } from "./entry-repository";
 
 /** Wiersz z tabeli public.entries (snake_case). */
 interface Row {
@@ -91,7 +91,7 @@ class SupabaseEntryRepository implements EntryRepository {
     return toEntry(created);
   }
 
-  async update(id: string, data: Partial<NewEntry>): Promise<Entry> {
+  async update(id: string, data: Partial<NewEntry>, opts?: MutateOptions): Promise<Entry> {
     const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
     if (data.title !== undefined) patch.title = data.title;
     if (data.content !== undefined) patch.content = data.content;
@@ -99,13 +99,17 @@ class SupabaseEntryRepository implements EntryRepository {
     if (data.mood !== undefined) patch.mood = data.mood;
     if (data.embedding !== undefined) patch.embedding = data.embedding;
 
+    // Z accessTokenem RLS sam odrzuci cudzy wiersz — bez niego (tokeny API/MCP,
+    // brak prawdziwego JWT) filtrujemy jawnie po właścicielu w zapytaniu.
+    const filter = opts?.accessToken ? "" : userFilter(opts?.userId);
     const res = await supabaseRest(
-      `entries?id=eq.${encodeURIComponent(id)}&select=*`,
+      `entries?id=eq.${encodeURIComponent(id)}${filter}&select=*`,
       {
         method: "PATCH",
         headers: { Prefer: "return=representation" },
         body: JSON.stringify(patch),
-      }
+      },
+      opts?.accessToken
     );
     if (!res.ok) await fail("UPDATE", res);
     const rows = (await res.json()) as Row[];
@@ -113,10 +117,12 @@ class SupabaseEntryRepository implements EntryRepository {
     return toEntry(rows[0]);
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string, opts?: MutateOptions): Promise<void> {
+    const filter = opts?.accessToken ? "" : userFilter(opts?.userId);
     const res = await supabaseRest(
-      `entries?id=eq.${encodeURIComponent(id)}&select=id`,
-      { method: "DELETE", headers: { Prefer: "return=representation" } }
+      `entries?id=eq.${encodeURIComponent(id)}${filter}&select=id`,
+      { method: "DELETE", headers: { Prefer: "return=representation" } },
+      opts?.accessToken
     );
     if (!res.ok) await fail("DELETE", res);
     const rows = (await res.json()) as { id: string }[];

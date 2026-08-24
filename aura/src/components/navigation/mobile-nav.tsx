@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { FileText, List, LogOut, PenLine, Settings } from "lucide-react";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-import { USER_EMAIL } from "@/lib/user";
+import { cn, isAuthRoute } from "@/lib/utils";
+import { useSupabaseUser } from "@/hooks/use-supabase-user";
+import { createBrowserSupabaseClient } from "@/lib/supabase/browser-client";
 import {
   Sheet,
   SheetClose,
@@ -23,6 +23,15 @@ const NAV_ITEM_CLASS =
 
 export function MobileNav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user } = useSupabaseUser();
+
+  const handleSignOut = async () => {
+    await createBrowserSupabaseClient().auth.signOut();
+    router.push("/login");
+  };
+
+  if (isAuthRoute(pathname)) return null;
 
   return (
     <nav
@@ -70,7 +79,7 @@ export function MobileNav() {
               Zalogowano jako
             </p>
             <p className="text-sm font-semibold text-[#1A1A2E] truncate">
-              {USER_EMAIL}
+              {user?.email ?? "…"}
             </p>
           </div>
 
@@ -90,16 +99,12 @@ export function MobileNav() {
             <span className="text-sm font-medium">Dokumentacja</span>
           </SheetClose>
 
-          {/* Wyloguj (atrapa do czasu Fazy 2) */}
+          {/* Wyloguj */}
           <SheetClose
             render={
               <button
                 type="button"
-                onClick={() =>
-                  toast(
-                    "Wylogowanie będzie dostępne po dodaniu logowania (Faza 2)"
-                  )
-                }
+                onClick={handleSignOut}
                 className="flex w-full items-center gap-3 px-2 py-3 rounded-xl text-[#1A1A2E] hover:bg-black/[0.04] transition-colors"
               />
             }

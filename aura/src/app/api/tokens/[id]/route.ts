@@ -1,16 +1,20 @@
 import { NextResponse } from "next/server";
 import { tokenRepository } from "@/lib/repository/tokens";
-import { getOwnerUserId } from "@/lib/owner";
+import { authenticate } from "@/lib/api-auth";
 
 export const runtime = "nodejs";
 
 type Params = { params: Promise<{ id: string }> };
 
-/** Unieważnia (usuwa) token po id. Faza 1: lokalnie, bez Bearera. */
-export async function DELETE(_req: Request, { params }: Params) {
+/** Unieważnia (usuwa) token po id — tylko dla zalogowanego właściciela. */
+export async function DELETE(req: Request, { params }: Params) {
   const { id } = await params;
+  const auth = await authenticate(req);
+  if (auth.mode === "invalid") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
-    const removed = await tokenRepository.revoke(id, getOwnerUserId());
+    const removed = await tokenRepository.revoke(id, auth.userId);
     if (!removed) {
       return NextResponse.json({ error: "Token not found" }, { status: 404 });
     }

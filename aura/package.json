@@ -13,6 +13,8 @@
     "@ai-sdk/react": "^4.0.69",
     "@ai-sdk/xai": "^4.0.40",
     "@base-ui/react": "^1.5.0",
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.112.3",
     "@tailwindcss/typography": "^0.5.20",
     "@tiptap/extension-link": "^3.27.0",
     "@tiptap/extension-underline": "^3.27.0",

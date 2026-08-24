@@ -11,7 +11,7 @@ import { z } from "zod";
 import { entryRepository } from "@/lib/repository/entries";
 import { sessionRepository } from "@/lib/therapist/json-session-repository";
 import { getPersona, type PersonaId } from "@/lib/therapist/persona";
-import { getOwnerUserId } from "@/lib/owner";
+import { authenticate } from "@/lib/api-auth";
 import {
   formatEntryFull,
   formatEntryBrief,
@@ -53,12 +53,17 @@ export async function POST(req: Request) {
     );
   }
 
+  const auth = await authenticate(req);
+  if (auth.mode === "invalid") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { messages, sessionId, openDayEntryId, persona: personaId }: ChatBody =
     await req.json();
   const persona = getPersona(personaId);
-  // Faza 1: jeden użytkownik — skopuj czytanie wpisów do ownera (Supabase ma
-  // dane wielu userów; bez tego Freud widziałby cudze wpisy).
-  const scope = getOwnerUserId();
+  // Zawsze scopujemy czytanie wpisów do zalogowanego użytkownika — Supabase
+  // ma dane wielu userów, bez tego Freud widziałby cudze wpisy.
+  const scope = auth.userId;
 
   // Trwała historia: zapisz ostatnią wiadomość użytkownika przed streamowaniem.
   if (sessionId) {

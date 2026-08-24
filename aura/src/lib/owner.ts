@@ -1,9 +1,8 @@
 /**
- * Id "właściciela" danych w Fazie 1 (jeden użytkownik, brak logowania).
- * Do czasu Fazy 2 = SUPABASE_OWNER_ID. Generowane tokeny są skopiowane do niego
- * — spójnie z istniejącym tokenem z AURA_API_TOKENS.
- *
- * Tylko po stronie serwera (czyta zmienną bez prefiksu NEXT_PUBLIC_).
+ * Historyczny id "właściciela" z Fazy 1 (sprzed logowania) = ten sam UUID co
+ * realne konto Supabase Auth właściciela. Po wdrożeniu Supabase Auth żadna
+ * trasa żądań już tego nie woła jako fallback tożsamości (patrz api-auth.ts) —
+ * wartość zostaje tylko jako referencja do jednorazowych skryptów porządkowych.
  */
 export function getOwnerUserId(): string {
   return process.env.SUPABASE_OWNER_ID ?? "local-owner";

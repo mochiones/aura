@@ -4,11 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, isAuthRoute } from "@/lib/utils";
 
 export function DesktopHeader() {
   const pathname = usePathname();
   const isNewEntry = pathname === "/entries/new";
+
+  if (isAuthRoute(pathname)) return null;
 
   return (
     <header className="hidden md:flex sticky top-0 z-40 bg-[#F7F6F3]/80 backdrop-blur-sm border-b border-[#EBEBF0] items-center justify-between px-6 py-4">

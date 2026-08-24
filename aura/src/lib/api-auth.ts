@@ -1,27 +1,28 @@
 /**
- * Autoryzacja tokenem dla endpointów sterujących (API kontrolne).
+ * Autoryzacja żądań (API kontrolne, MCP i wewnętrzne trasy web UI).
  *
- * Faza 1 nie ma jeszcze bazy użytkowników ani better-auth w kodzie (patrz
- * pamięć projektu). Tożsamość ustalamy dwutorowo:
- *   1) STATYCZNA MAPA token → userId z env `AURA_API_TOKENS` (JSON; wstecz),
- *   2) tokeny wygenerowane w panelu /docs — hash w `data/tokens.json`
- *      (TokenRepository).
+ * Tożsamość ustalamy dwutorowo:
+ *   1) Nagłówek `Authorization: Bearer <token>` — STATYCZNA MAPA token → userId
+ *      z env `AURA_API_TOKENS` (JSON; wstecz), albo token wygenerowany w
+ *      panelu /docs (hash w TokenRepository). Do klientów programistycznych
+ *      (curl, MCP) — to nie są prawdziwe JWT Supabase.
+ *   2) Brak nagłówka → realna sesja Supabase odczytana z ciasteczek żądania
+ *      (przeglądarka, po zalogowaniu). Ważna sesja → tryb "user" z prawdziwym
+ *      `auth.uid()` i tokenem dostępu (do zapytań respektujących RLS).
  * Nigdy nie commitujemy jawnych tokenów (env w `.env.local`, w magazynie tylko hash).
  *
  * Model użycia w trasach:
- *   - Nagłówek `Authorization: Bearer <token>` obecny i poprawny → tryb "user"
- *     (żądanie skopiowane do userId z mapy).
- *   - Nagłówek obecny, ale token nieznany → tryb "invalid" (trasa zwraca 401).
- *   - Brak nagłówka → tryb "local" (userId = null). Pozwala lokalnemu web UI
- *     działać bez tokenu na współdzielonych wpisach (userId === null).
+ *   - Token poprawny LUB ważna sesja → tryb "user".
+ *   - Token obecny, ale nieznany → tryb "invalid" (trasa zwraca 401).
+ *   - Brak tokenu i brak sesji → tryb "invalid" (trasa zwraca 401). Nie ma już
+ *     cichego trybu lokalnego/ownera.
  */
 
 import { tokenRepository } from "@/lib/repository/tokens";
-import { getOwnerUserId } from "@/lib/owner";
+import { createServerSupabaseClient } from "@/lib/supabase/server-client";
 
 export type AuthContext =
-  | { mode: "user"; userId: string }
-  | { mode: "local"; userId: string }
+  | { mode: "user"; userId: string; accessToken?: string }
   | { mode: "invalid"; userId: null };
 
 /** Wczytuje mapę token→userId z env. Puste/niepoprawne = brak tokenów. */
@@ -41,12 +42,25 @@ function loadTokenMap(): Record<string, string> {
   }
 }
 
-/** Ustala tożsamość na podstawie nagłówka Authorization: Bearer <token>. */
+/**
+ * Ustala tożsamość: nagłówek Authorization: Bearer <token>, a w jego braku —
+ * realna sesja Supabase z ciasteczek żądania. Bez żadnego z nich → "invalid".
+ */
 export async function authenticate(req: Request): Promise<AuthContext> {
   const header = req.headers.get("authorization");
-  // Faza 1: brak logowania = jeden użytkownik (owner). Bez tokenu web UI i API
-  // działają jako owner, żeby widzieć/zapisywać jego wpisy w Supabase.
-  if (!header) return { mode: "local", userId: getOwnerUserId() };
+
+  if (!header) {
+    const supabase = await createServerSupabaseClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { mode: "invalid", userId: null };
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    return { mode: "user", userId: user.id, accessToken: session?.access_token };
+  }
 
   const match = /^Bearer\s+(.+)$/i.exec(header.trim());
   const token = match?.[1]?.trim();

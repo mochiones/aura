@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Card, Code, Method, Mono, Td, Th } from "@/components/docs/ui";
-import { TokenManager } from "@/components/docs/token-manager";
+import { TokenManagerGate } from "@/components/docs/token-manager-gate";
 
 export const metadata = {
   title: "Dokumentacja API — Aura",
@@ -34,8 +34,8 @@ export default function DocsApiPage() {
       </div>
 
       <div className="space-y-6">
-        {/* Panel generowania tokenów */}
-        <TokenManager />
+        {/* Panel generowania tokenów — wymaga logowania */}
+        <TokenManagerGate />
 
         {/* Autoryzacja */}
         <Card id="auth">
@@ -75,10 +75,11 @@ export default function DocsApiPage() {
                   </Td>
                 </tr>
                 <tr>
-                  <Td>Brak nagłówka</Td>
+                  <Td>Brak nagłówka i brak sesji</Td>
                   <Td>
-                    Tryb <strong>lokalny</strong> — tylko wpisy współdzielone (
-                    <Mono>userId = null</Mono>, dane z Etapu 1).
+                    <Mono>401 Unauthorized</Mono>. Zalogowana przeglądarka
+                    (ciasteczko sesji) jest traktowana jak tryb{" "}
+                    <strong>user</strong>.
                   </Td>
                 </tr>
               </tbody>

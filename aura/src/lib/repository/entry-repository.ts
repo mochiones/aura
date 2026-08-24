@@ -8,6 +8,17 @@ export interface CreateOptions {
   createdAt?: string;
 }
 
+/**
+ * Opcje mutacji (update/delete) — ustalają, kto ma prawo zmienić dany wpis.
+ * `accessToken`, gdy podany, kieruje żądanie jako ten użytkownik (klucz anon +
+ * jego JWT) — RLS samo odrzuci cudzy wiersz. Bez niego repozytorium filtruje
+ * po `userId` w warstwie aplikacji (klienci tokenów API/MCP bez prawdziwego JWT).
+ */
+export interface MutateOptions {
+  userId?: string | null;
+  accessToken?: string;
+}
+
 export interface EntryRepository {
   /**
    * Zwraca wpisy posortowane malejąco po dacie.
@@ -18,6 +29,6 @@ export interface EntryRepository {
   /** Pobiera wpis po id; gdy podano userId, zwraca go tylko dla właściciela. */
   getById(id: string, userId?: string | null): Promise<Entry | null>;
   create(data: NewEntry, opts?: CreateOptions): Promise<Entry>;
-  update(id: string, data: Partial<NewEntry>): Promise<Entry>;
-  delete(id: string): Promise<void>;
+  update(id: string, data: Partial<NewEntry>, opts?: MutateOptions): Promise<Entry>;
+  delete(id: string, opts?: MutateOptions): Promise<void>;
 }

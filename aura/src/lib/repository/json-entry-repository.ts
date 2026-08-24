@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import type { Entry, NewEntry } from "@/types/entry";
-import type { CreateOptions, EntryRepository } from "./entry-repository";
+import type { CreateOptions, EntryRepository, MutateOptions } from "./entry-repository";
 
 const DATA_PATH = path.join(process.cwd(), "data", "entries.json");
 
@@ -69,10 +69,13 @@ class JsonEntryRepository implements EntryRepository {
     return entry;
   }
 
-  async update(id: string, data: Partial<NewEntry>): Promise<Entry> {
+  async update(id: string, data: Partial<NewEntry>, opts?: MutateOptions): Promise<Entry> {
     const entries = await readFile();
     const idx = entries.findIndex((e) => e.id === id);
     if (idx === -1) throw new Error("NOT_FOUND");
+    if (opts?.userId !== undefined && entries[idx].userId !== opts.userId) {
+      throw new Error("NOT_FOUND");
+    }
     const updated: Entry = {
       ...entries[idx],
       ...data,
@@ -83,10 +86,13 @@ class JsonEntryRepository implements EntryRepository {
     return updated;
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string, opts?: MutateOptions): Promise<void> {
     const entries = await readFile();
     const idx = entries.findIndex((e) => e.id === id);
     if (idx === -1) throw new Error("NOT_FOUND");
+    if (opts?.userId !== undefined && entries[idx].userId !== opts.userId) {
+      throw new Error("NOT_FOUND");
+    }
     entries.splice(idx, 1);
     await writeFile(entries);
   }
