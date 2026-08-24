@@ -1,7 +1,10 @@
 /**
  * Serwis agenta (Freud) — wariant non-streaming, wspólny dla API i MCP.
- * Jedno pytanie → jedna kompletna odpowiedź tekstowa. Model sam sięga po
- * narzędzia (getEntry/listEntries/getMoodSummary), skopiowane po userId.
+ * Jedno pytanie → jedna kompletna odpowiedź tekstowa. Przed wygenerowaniem
+ * odpowiedzi ZAWSZE wykonujemy hybrid search (wektor + FTS + ostatnie 7 dni)
+ * dla pytania użytkownika i wstrzykujemy wyniki do system promptu — model
+ * odpowiada na ich podstawie. Dodatkowo ma narzędzia (getEntry/listEntries/
+ * getMoodSummary) do doprecyzowania, skopiowane po userId.
  */
 import { createXai } from "@ai-sdk/xai";
 import { generateText, tool, stepCountIs } from "ai";
@@ -69,6 +72,23 @@ export async function askTherapist({
     system += `\n\n# Aktualnie wskazany dzień\nUżytkownik pyta w kontekście dnia ${dayLabel}, ale nie ma jeszcze wpisu z tego dnia. Powiedz to łagodnie, jeśli to istotne, i możesz sięgnąć po szerszy kontekst (listEntries / getMoodSummary).`;
   }
 
+  // Hybrid search ZAWSZE przed odpowiedzią (nie na żądanie modelu): wektor +
+  // FTS dla treści pytania, plus wpisy z ostatnich 7 dni jako świeży kontekst.
+  let queryEmbedding: number[] | null = null;
+  try {
+    queryEmbedding = await computeEmbedding(question);
+  } catch (err) {
+    console.warn("[Aura] askTherapist: nie udało się policzyć embeddingu pytania:", err);
+  }
+  const searchResults =
+    scope !== null
+      ? await entryRepository.search({ userId: scope, queryText: question, queryEmbedding })
+      : [];
+  system +=
+    searchResults.length > 0
+      ? `\n\n# Wpisy pasujące do pytania (wyszukiwanie hybrydowe: dopasowanie semantyczne + słowa kluczowe + ostatnie 7 dni)\nOdpowiadaj przede wszystkim na podstawie poniższych wpisów — to najbardziej trafny dostępny kontekst.\n${searchResults.map((e) => formatEntryBrief(e)).join("\n")}`
+      : `\n\n# Wpisy pasujące do pytania\nWyszukiwanie hybrydowe nie znalazło żadnych pasujących wpisów.`;
+
   const tools = {
     getEntry: tool({
       description:
@@ -86,8 +106,8 @@ export async function askTherapist({
     listEntries: tool({
       description:
         "Zwraca skrótową listę najnowszych wpisów w kolejności chronologicznej (data, nastrój, tytuł, fragment). " +
-        "Użyj przy ogólnym przeglądzie ('pokaż mi ostatnie wpisy'), nie przy pytaniach o konkretny temat — " +
-        "do tego użyj searchEntries.",
+        "Wyniki wyszukiwania trafiające w pytanie są już w kontekście systemowym — użyj tego narzędzia tylko " +
+        "przy ogólnym przeglądzie ('pokaż mi ostatnie wpisy'), gdy potrzebujesz więcej niż dostarczony kontekst.",
       inputSchema: z.object({
         limit: z
           .number()
@@ -103,35 +123,6 @@ export async function askTherapist({
         return {
           count: slice.length,
           entries: slice.map((e) => formatEntryBrief(e)),
-        };
-      },
-    }),
-
-    searchEntries: tool({
-      description:
-        "Wyszukuje wpisy pasujące tematycznie do zapytania (dopasowanie semantyczne + słowa kluczowe) " +
-        "i zawsze dokłada wpisy z ostatnich 7 dni jako świeży kontekst. Użyj przy pytaniach o konkretny " +
-        "temat, uczucie lub wydarzenie (np. 'kiedy pisałem o pracy', 'wczoraj się pokłóciłem z X'). " +
-        "Do ogólnego przeglądu chronologicznego użyj listEntries.",
-      inputSchema: z.object({
-        query: z.string().min(1).describe("Fraza lub temat do wyszukania w treści wpisów."),
-      }),
-      execute: async ({ query }) => {
-        if (scope === null) return { count: 0, entries: [] };
-        let queryEmbedding: number[] | null = null;
-        try {
-          queryEmbedding = await computeEmbedding(query);
-        } catch (err) {
-          console.warn("[Aura] searchEntries: nie udało się policzyć embeddingu zapytania:", err);
-        }
-        const results = await entryRepository.search({
-          userId: scope,
-          queryText: query,
-          queryEmbedding,
-        });
-        return {
-          count: results.length,
-          entries: results.map((e) => formatEntryBrief(e)),
         };
       },
     }),
